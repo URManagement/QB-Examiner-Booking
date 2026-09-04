@@ -1,0 +1,1196 @@
+<title>Q2 Examiner Booking</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+
+  :root{
+    /* UR Klinik-inspired: warm ivory ground, clinical white cards, soft gold accent */
+    --bg:#faf5ea;
+    --surface:#ffffff;
+    --surface-2:#f7f0df;
+    --surface-3:#efe1c3;
+    --gold:#a8783a;
+    --gold-bright:#c4954f;
+    --crimson:#b23a4c;
+    --jade:#3f8467;
+    --ink:#26211a;
+    --ink-dim:#544c3c;
+    --muted:#8a8069;
+    --line:rgba(168,120,58,0.24);
+    --shadow: 0 18px 44px rgba(120,90,40,0.12);
+    --radius: 14px;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#18130f;
+      --surface:#221b15;
+      --surface-2:#2b2219;
+      --surface-3:#382c1e;
+      --gold:#d6ab6c;
+      --gold-bright:#ecc78e;
+      --crimson:#d16b7b;
+      --jade:#6cbb99;
+      --ink:#f6ecd9;
+      --ink-dim:#d9cbae;
+      --muted:#a89a7e;
+      --line:rgba(214,171,108,0.24);
+      --shadow: 0 20px 60px rgba(0,0,0,0.5);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#18130f;
+    --surface:#221b15;
+    --surface-2:#2b2219;
+    --surface-3:#382c1e;
+    --gold:#d6ab6c;
+    --gold-bright:#ecc78e;
+    --crimson:#d16b7b;
+    --jade:#6cbb99;
+    --ink:#f6ecd9;
+    --ink-dim:#d9cbae;
+    --muted:#a89a7e;
+    --line:rgba(214,171,108,0.24);
+    --shadow: 0 20px 60px rgba(0,0,0,0.5);
+    color-scheme: dark;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1100px 500px at 12% -8%, rgba(168,120,58,0.10), transparent 60%),
+      radial-gradient(900px 460px at 100% 0%, rgba(63,132,103,0.06), transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .display{ font-family:'Playfair Display', Georgia, serif; text-wrap:balance; }
+  .mono{ font-family:'Space Mono', ui-monospace, monospace; }
+
+  a{ color:inherit; }
+  button{ font-family:inherit; cursor:pointer; }
+  ::selection{ background:var(--gold); color:#1a1400; }
+
+  .app{ max-width:1080px; margin:0 auto; padding:28px 20px 80px; }
+
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:34px; gap:12px;
+  }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .topbar-logo{ height:24px; width:auto; display:block; }
+  .brand-divider{ width:1px; height:20px; background:var(--line); }
+  .brand .mark{
+    width:34px;height:34px;border-radius:9px;
+    background:linear-gradient(155deg,var(--gold-bright),var(--gold));
+    display:flex;align-items:center;justify-content:center;
+    color:#221a06; font-weight:800; font-size:15px;
+    box-shadow: 0 4px 14px rgba(168,120,58,0.35);
+  }
+  .brand .name{ font-size:13px; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); font-weight:700; }
+  .brand .name b{ color:var(--ink); }
+
+  .admin-link{
+    font-size:12.5px; color:var(--muted); background:var(--surface);
+    border:1px solid var(--line); padding:8px 14px; border-radius:100px;
+    display:flex; align-items:center; gap:6px; transition:all .15s ease;
+  }
+  .admin-link:hover{ color:var(--ink); border-color:var(--gold); }
+
+  /* ---------- Marquee / Landing ---------- */
+  .marquee{
+    text-align:center; padding:54px 20px 46px; position:relative;
+  }
+  .hero-logo{ height:52px; width:auto; margin:0 auto 22px; display:block; }
+  .eyebrow{
+    font-size:12px; letter-spacing:0.22em; text-transform:uppercase;
+    color:var(--gold); font-weight:700; margin-bottom:16px;
+  }
+  .marquee h1{
+    font-size:clamp(32px,5.4vw,54px); margin:0 0 14px; line-height:1.08; font-weight:800;
+  }
+  .marquee h1 em{ color:var(--gold); font-style:normal; }
+  .marquee p.sub{ color:var(--ink-dim); font-size:16px; max-width:520px; margin:0 auto 30px; line-height:1.6; }
+
+  .progress-wrap{ max-width:440px; margin:0 auto 34px; }
+  .progress-label{ display:flex; justify-content:space-between; font-size:12.5px; color:var(--muted); margin-bottom:8px; font-weight:600; }
+  .progress-track{ height:8px; border-radius:100px; background:var(--surface-2); overflow:hidden; border:1px solid var(--line); }
+  .progress-fill{ height:100%; border-radius:100px; background:linear-gradient(90deg,var(--gold),var(--gold-bright)); transition:width .5s ease; }
+
+  .cta{
+    display:inline-flex; align-items:center; gap:10px;
+    background:linear-gradient(155deg,var(--gold-bright),var(--gold));
+    color:#221a06; font-weight:800; font-size:15px;
+    padding:15px 30px; border-radius:100px; border:none;
+    box-shadow:0 10px 30px rgba(168,120,58,0.32);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .cta:hover{ transform:translateY(-2px); box-shadow:0 14px 36px rgba(168,120,58,0.42); }
+  .cta:disabled{ opacity:.5; cursor:not-allowed; transform:none; }
+
+  .film-strip{
+    display:flex; justify-content:center; gap:6px; margin-top:40px; opacity:.55;
+  }
+  .film-strip span{ width:5px;height:5px;border-radius:2px; background:var(--gold); }
+
+  /* ---------- Section shell ---------- */
+  .panel{
+    background:var(--surface); border:1px solid var(--line); border-radius:20px;
+    padding:30px; box-shadow:var(--shadow);
+  }
+  .panel-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:24px; flex-wrap:wrap; }
+  .panel-head h2{ font-size:24px; margin:0 0 6px; font-weight:800; }
+  .panel-head p{ margin:0; color:var(--muted); font-size:14px; max-width:460px; }
+  .back-link{
+    font-size:13px; color:var(--muted); background:none; border:1px solid var(--line);
+    padding:8px 14px; border-radius:100px; display:inline-flex; align-items:center; gap:6px;
+  }
+  .back-link:hover{ color:var(--ink); border-color:var(--gold); }
+
+  .search{
+    width:100%; padding:13px 16px; border-radius:12px; border:1px solid var(--line);
+    background:var(--surface-2); color:var(--ink); font-size:14px; margin-bottom:20px;
+    font-family:inherit;
+  }
+  .search::placeholder{ color:var(--muted); }
+  .search:focus{ outline:2px solid var(--gold); outline-offset:1px; }
+
+  /* ---------- Candidate ticket stubs ---------- */
+  .stub-grid{
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:14px;
+  }
+  .stub{
+    position:relative; text-align:left; background:var(--surface-2);
+    border:1px solid var(--line); border-radius:12px; padding:16px 16px 16px 20px;
+    color:var(--ink); transition:all .15s ease; overflow:hidden;
+  }
+  .stub::before{
+    content:''; position:absolute; left:0; top:0; bottom:0; width:4px;
+    background:repeating-linear-gradient(180deg,var(--gold) 0 6px, transparent 6px 12px);
+  }
+  .stub:hover{ border-color:var(--gold); background:var(--surface-3); transform:translateY(-2px); }
+  .stub .code{ font-family:'Space Mono',monospace; font-size:14.5px; font-weight:700; letter-spacing:0.02em; }
+  .stub .tag{ font-size:11px; color:var(--muted); margin-top:5px; text-transform:uppercase; letter-spacing:0.05em; }
+  .stub.done{ opacity:.55; }
+  .stub.done .tag.booked{ color:var(--jade); font-weight:700; }
+
+  /* ---------- Examiner booths ---------- */
+  .booth-grid{
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:16px;
+  }
+  .booth{
+    position:relative; text-align:left; background:var(--surface-2);
+    border:1px solid var(--line); border-radius:16px; padding:22px;
+    transition:all .18s ease; color:var(--ink); overflow:hidden;
+  }
+  .booth::after{
+    content:''; position:absolute; inset:0; border-radius:16px;
+    background:radial-gradient(220px 120px at 90% -10%, var(--booth-accent,var(--gold)) , transparent 60%);
+    opacity:.14; pointer-events:none;
+  }
+  .booth:hover:not(.full){ border-color:var(--booth-accent,var(--gold)); transform:translateY(-3px); box-shadow:0 14px 32px rgba(0,0,0,0.28); }
+  .booth .icon{ font-size:26px; margin-bottom:10px; display:block; }
+  .booth .nickname{ font-family:'Playfair Display',serif; font-size:19px; font-weight:700; letter-spacing:0.02em; margin-bottom:14px; }
+  .seat-row{ display:flex; align-items:center; gap:8px; }
+  .status-light{
+    width:10px; height:10px; border-radius:50%; flex:none;
+    background:var(--surface-3); border:1px solid var(--line);
+    transition:all .2s ease;
+  }
+  .status-light.on{
+    background:var(--booth-accent,var(--gold)); border-color:transparent;
+    box-shadow:0 0 9px 2px var(--booth-accent,var(--gold));
+  }
+  .status-label{ font-family:'Space Mono',monospace; font-size:12px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:0.04em; }
+
+  .booth.full{ filter:grayscale(0.75); opacity:.5; cursor:not-allowed; }
+  .booth.full::before{
+    content:'SOLD OUT'; position:absolute; top:16px; right:-32px;
+    background:var(--crimson); color:#fff; font-size:11px; font-weight:800;
+    letter-spacing:0.08em; padding:5px 40px; transform:rotate(28deg);
+    box-shadow:0 3px 10px rgba(0,0,0,0.3);
+  }
+
+  /* ---------- Modal ---------- */
+  .modal-back{
+    position:fixed; inset:0; background:rgba(6,7,14,0.68); backdrop-filter:blur(3px);
+    display:flex; align-items:center; justify-content:center; padding:20px; z-index:50;
+  }
+  .modal{
+    background:var(--surface); border:1px solid var(--line); border-radius:18px;
+    padding:28px; max-width:380px; width:100%; box-shadow:var(--shadow); text-align:center;
+  }
+  .modal .icon{ font-size:34px; margin-bottom:10px; }
+  .modal h3{ margin:0 0 8px; font-size:20px; font-family:'Playfair Display',serif; }
+  .modal p{ color:var(--muted); font-size:14px; line-height:1.55; margin:0 0 22px; }
+  .modal-actions{ display:flex; gap:10px; }
+  .btn-secondary{
+    flex:1; padding:12px; border-radius:100px; border:1px solid var(--line);
+    background:transparent; color:var(--ink-dim); font-weight:700; font-size:13.5px;
+  }
+  .btn-secondary:hover{ border-color:var(--muted); color:var(--ink); }
+  .btn-primary{
+    flex:1; padding:12px; border-radius:100px; border:none;
+    background:linear-gradient(155deg,var(--gold-bright),var(--gold)); color:#221a06;
+    font-weight:800; font-size:13.5px;
+  }
+  .btn-primary:disabled{ opacity:.6; }
+
+  /* ---------- Ticket receipt ---------- */
+  .ticket-wrap{ display:flex; justify-content:center; padding:20px 0 10px; }
+  .ticket{
+    position:relative; width:100%; max-width:440px; background:var(--surface-2);
+    border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow);
+    display:flex; flex-direction:column;
+  }
+  .ticket-top{ padding:26px 26px 20px; text-align:center; }
+  .ticket-top .stamp{ font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:var(--jade); font-weight:800; margin-bottom:10px; }
+  .ticket-top .exname{ font-family:'Playfair Display',serif; font-size:26px; font-weight:800; margin:0 0 4px; }
+  .ticket-top .exnick{ color:var(--gold); font-size:13.5px; font-weight:700; }
+  .ticket-perf{
+    position:relative; height:0; border-top:2px dashed var(--line);
+  }
+  .ticket-perf::before, .ticket-perf::after{
+    content:''; position:absolute; top:-11px; width:22px; height:22px; border-radius:50%;
+    background:var(--bg);
+  }
+  .ticket-perf::before{ left:-11px; }
+  .ticket-perf::after{ right:-11px; }
+  .ticket-bottom{ padding:20px 26px 26px; display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .ticket-field{ }
+  .ticket-field .k{ font-size:10.5px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:4px; font-weight:700; }
+  .ticket-field .v{ font-family:'Space Mono',monospace; font-size:14px; }
+  .ticket-actions{ display:flex; justify-content:center; margin-top:26px; }
+
+  .net-banner{
+    max-width:520px; margin:0 auto 18px; text-align:center; font-size:12.5px;
+    color:var(--crimson); background:rgba(178,58,76,0.08); border:1px solid rgba(178,58,76,0.25);
+    padding:8px 14px; border-radius:10px;
+  }
+  .setup-banner{
+    text-align:center; font-size:13px; font-weight:600; color:var(--ink);
+    background:rgba(196,149,79,0.16); border:1px solid var(--line); border-radius:10px;
+    padding:10px 18px; margin:0 0 28px; line-height:1.6;
+  }
+  .sheet-btn[aria-disabled="true"]{ opacity:.5; cursor:not-allowed; pointer-events:none; }
+
+  /* ---------- Admin ---------- */
+  .lock-form{ max-width:340px; margin:40px auto; text-align:center; }
+  .lock-form .icon{ font-size:32px; margin-bottom:14px; }
+  .pw-input{
+    width:100%; padding:13px 16px; border-radius:12px; border:1px solid var(--line);
+    background:var(--surface-2); color:var(--ink); font-size:15px; margin:16px 0 10px;
+    text-align:center; letter-spacing:0.08em; font-family:'Space Mono',monospace;
+  }
+  .pw-error{ color:var(--crimson); font-size:13px; margin-bottom:10px; min-height:18px; }
+
+  .stat-row{ display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:26px; }
+  .stat-card{ background:var(--surface-2); border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+  .stat-card .label{ font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--muted); font-weight:700; margin-bottom:8px; }
+  .stat-card .val{ font-family:'Space Mono',monospace; font-size:20px; font-weight:700; }
+  .stat-card .bar{ height:5px; border-radius:100px; background:var(--surface-3); margin-top:8px; overflow:hidden; }
+  .stat-card .bar i{ display:block; height:100%; background:var(--gold); }
+
+  table.admin-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
+  .table-scroll{ overflow-x:auto; border:1px solid var(--line); border-radius:12px; }
+  table.admin-table th{
+    text-align:left; padding:12px 14px; background:var(--surface-2); color:var(--muted);
+    font-size:11px; text-transform:uppercase; letter-spacing:0.05em; font-weight:700;
+    border-bottom:1px solid var(--line); white-space:nowrap;
+  }
+  table.admin-table td{ padding:11px 14px; border-bottom:1px solid var(--line); white-space:nowrap; }
+  table.admin-table tr:last-child td{ border-bottom:none; }
+  .pill{ display:inline-block; padding:3px 10px; border-radius:100px; font-size:11.5px; font-weight:700; }
+  .pill.waiting{ background:rgba(141,146,184,0.15); color:var(--muted); }
+  .pill.booked{ background:rgba(63,132,103,0.15); color:var(--jade); }
+  .tiny-btn{
+    font-size:11.5px; padding:5px 10px; border-radius:100px; border:1px solid var(--line);
+    background:transparent; color:var(--muted);
+  }
+  .tiny-btn:hover{ border-color:var(--crimson); color:var(--crimson); }
+  .toolbar{ display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap; align-items:center; }
+  .copy-btn, .sheet-btn{
+    font-size:13px; padding:9px 16px; border-radius:100px; border:1px solid var(--line);
+    background:var(--surface-2); color:var(--ink-dim); font-weight:700; display:flex; align-items:center; gap:6px;
+    text-decoration:none;
+  }
+  .copy-btn:hover, .sheet-btn:hover{ border-color:var(--gold); color:var(--ink); }
+  .conn-dot{ width:7px;height:7px;border-radius:50%; background:var(--jade); display:inline-block; margin-right:6px; box-shadow:0 0 0 3px rgba(63,132,103,0.18); }
+
+  footer{ text-align:center; color:var(--muted); font-size:11.5px; letter-spacing:0.03em; margin-top:50px; }
+
+  @media (max-width:520px){
+    .ticket-bottom{ grid-template-columns:1fr 1fr; }
+    .panel{ padding:22px; }
+  }
+</style>
+
+<div id="root" class="app"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>(function(){
+  "use strict";
+
+  /* ============== DATA ============== */
+  // ===== FILL THIS IN AFTER YOU CREATE YOUR FIREBASE PROJECT =====
+  // Firebase console (console.firebase.google.com) > Project settings (gear
+  // icon) > General tab > "Your apps" > add a Web app > copy the
+  // firebaseConfig object shown there and paste its values below.
+  var FIREBASE_CONFIG = {
+    apiKey: "AIzaSyDRvE-IsEaN-iNcZPTqHipBD4v5jgFQ-Pc",
+    authDomain: "q2-examiner-booking.firebaseapp.com",
+    projectId: "q2-examiner-booking",
+    storageBucket: "q2-examiner-booking.firebasestorage.app",
+    messagingSenderId: "712159834893",
+    appId: "1:712159834893:web:3d8e3499f7bc389807b644"
+  };
+  // Gates the HR panel here. Anyone who reads this file's source can see
+  // it, same as before — internal-grade, not bank-grade, by design. This
+  // one lives only in this file now (Firestore's rules don't check it).
+  var ADMIN_KEY = "URHR1111";
+  var UR_LOGO = "data:image/png;base64,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";
+
+  var CANDIDATES = [
+    "RU-JANET","BM-HONEY","BM-WENNIE","BM-ESTHER","BM-SHERLYN",
+    "GL-MINDY","GL-JANICE","GY-CLARISE","RU-YY","RU-YAYA",
+    "SS2-EN NING","SS2-JESSIE","SS2-TINA","SS2CHING YUE","SS2-BERRY",
+    "SU-AI NI","SS2-ATHENA","PC-RACHEL","BM-YE YING","GL-REGINA",
+    "GY-AVICIA","PC-AMANDA","CL-SHARON","MA-JESSY","SU-WEI XUAN"
+  ];
+
+  // The private code each candidate types to reach her own confirmation
+  // screen (from HR — not derivable from her display code above, so
+  // nobody can guess a colleague's). Booking data, the admin panel, and
+  // Firestore doc ids all still key off the CANDIDATES label above; this
+  // is only used to look up which label a typed code belongs to.
+  var PRIVATE_CODES = {
+    "RU-JANET": "URC0159",
+    "BM-HONEY": "URC0068",
+    "BM-WENNIE": "URC0023",
+    "BM-ESTHER": "URC0051",
+    "BM-SHERLYN": "URC0089",
+    "GL-MINDY": "URC0007",
+    "GL-JANICE": "URC0065",
+    "GY-CLARISE": "URC0084",
+    "RU-YY": "URC0108",
+    "RU-YAYA": "URC0107",
+    "SS2-EN NING": "URS0212",
+    "SS2-JESSIE": "URS0127",
+    "SS2-TINA": "URS0192",
+    "SS2CHING YUE": "URS0213",
+    "SS2-BERRY": "URS0117",
+    "SU-AI NI": "URS0078",
+    "SS2-ATHENA": "URS0085",
+    "PC-RACHEL": "URS0129",
+    "BM-YE YING": "URC0160",
+    "GL-REGINA": "URC0110",
+    "GY-AVICIA": "URC0145",
+    "PC-AMANDA": "URS0224",
+    "CL-SHARON": "URS0209",
+    "MA-JESSY": "URS0191",
+    "SU-WEI XUAN": "URS0195"
+  };
+
+  // Full name shown back on the confirmation screen once a private code
+  // matches, so each candidate can visually double-check it's really her
+  // before continuing.
+  var FULL_NAMES = {
+    "RU-JANET": "JANET YUN JING HUI",
+    "BM-HONEY": "HONEY (CHONG THEAN MI)",
+    "BM-WENNIE": "WENNIE (NEOW WENNIE)",
+    "BM-ESTHER": "ESTHER (LOW KER YEE)",
+    "BM-SHERLYN": "SHERLYN (TAN YING SING)",
+    "GL-MINDY": "MINDY (CHEW SEE MENG)",
+    "GL-JANICE": "JANICE (KHOO WEI SIN)",
+    "GY-CLARISE": "CLARISE (CHUAH JING PING)",
+    "RU-YY": "LIM YEE YIN",
+    "RU-YAYA": "YAYA (CHIEW ZIN HUA)",
+    "SS2-EN NING": "YEONG EN NING",
+    "SS2-JESSIE": "JESSIE (LAU JIA CHYI)",
+    "SS2-TINA": "TINA (ESTINA LAI BINTI ABDULLAH)",
+    "SS2CHING YUE": "LIM CHING YUE",
+    "SS2-BERRY": "BERRY (KHOO CHIAO MEI)",
+    "SU-AI NI": "LOW AI NI",
+    "SS2-ATHENA": "ATHENA (TEO HUI YOKE)",
+    "PC-RACHEL": "RACHEL (KOK CHOY PEI)",
+    "BM-YE YING": "TAN YE YING",
+    "GL-REGINA": "REGINA CHNG PEI XUAN",
+    "GY-AVICIA": "AVICIA (CHENG ZHI YI)",
+    "PC-AMANDA": "AMANDA YII SIEW HIE",
+    "CL-SHARON": "SHARON (FOOK ZHI XUAN)",
+    "MA-JESSY": "JESSY TEE",
+    "SU-WEI XUAN": "WONG WEI XUAN"
+  };
+
+  var EXAMINERS = [
+    { key:"fong",   name:"Dr. Fong",   slots:4, nickname:"The Steady Compass", icon:"🧭", accent:"#c9a15a" },
+    { key:"jaye",   name:"Dr. Jaye",   slots:4, nickname:"The Sharp Eye",      icon:"🦅", accent:"#8a9bd8" },
+    { key:"jovyn",  name:"Dr. Jovyn",  slots:5, nickname:"The Calm Current",   icon:"🌊", accent:"#5fae8c" },
+    { key:"nicole", name:"Dr. Nicole", slots:4, nickname:"The Bright Spark",   icon:"⚡",       accent:"#e0a34d" },
+    { key:"jem",    name:"Dr. Jem",    slots:4, nickname:"The Warm Anchor",    icon:"⚓",       accent:"#c0788f" },
+    { key:"xuan",   name:"Dr. Xuan",   slots:4, nickname:"The Quiet Focus",    icon:"🎯", accent:"#7fb0c9" }
+  ];
+
+  var TOTAL_SLOTS = EXAMINERS.reduce(function(a,e){return a+e.slots;},0);
+
+  function slug(s){
+    return String(s).toUpperCase().trim().replace(/[^A-Z0-9]+/g,"-").replace(/^-+|-+$/g,"");
+  }
+  function examinerByKey(k){ for(var i=0;i<EXAMINERS.length;i++){ if(EXAMINERS[i].key===k) return EXAMINERS[i]; } return null; }
+  function fmtTime(iso){
+    try{
+      var d = new Date(iso);
+      return d.toLocaleString('en-MY',{ month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false });
+    }catch(e){ return ""; }
+  }
+  function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+
+  /* ============== STATE ============== */
+  var state = {
+    view: "landing",          // landing | pick-candidate | pick-examiner | ticket | admin-lock | admin
+    counts: {},                // examinerKey -> number booked (from the sheet)
+    countsLoaded: false,
+    bookedSet: {},              // candidate code -> true, kept live so the picker can gray out taken names
+    netError: "",
+    myRecord: null,            // {candidate, examinerKey, examinerName, examinerNickname, timestamp}
+    currentCandidate: null,    // original code string
+    checkingMine: false,
+    codeInputValue: "",        // what's currently typed in the "enter your code" box
+    codeError: "",
+    pendingConfirmCandidate: null, // a matched code awaiting the "is this you?" confirmation
+    confirmExaminer: null,     // examiner object mid-confirmation
+    booking: false,
+    bookingError: "",
+    adminError: "",
+    adminSearch: "",
+    adminRows: [],              // [{candidate, examinerKey, examinerName, timestamp}] from the sheet
+    adminLoaded: false,
+    adminLoading: false,
+    copyFeedback: false
+  };
+
+  function countFor(key){ return state.counts[key] || 0; }
+  function totalBooked(){
+    var n = 0;
+    for(var k in state.counts){ n += state.counts[k]; }
+    return n;
+  }
+
+  /* ============== BACKEND (Firebase Firestore) ============== */
+  function backendReady(){ return FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey.indexOf("PASTE_YOUR") !== 0; }
+
+  // Turns a candidate code into a safe Firestore document id (letters/
+  // digits/underscore only) so odd characters in a name can never break a
+  // doc path. Two different-looking candidate codes could in theory slugify
+  // to the same id, but our real candidate list has none that collide.
+  function slugify(s){
+    return String(s).toUpperCase().trim().replace(/[^A-Z0-9]+/g, "_");
+  }
+
+  // Looser normalization used only to MATCH a typed private code — ignores
+  // spaces/hyphens/case so "urc 0159", "URC0159" and "urc-0159" all find
+  // the same real code, without being so loose that two different real
+  // codes could collide (checked: none of the 25 do).
+  function normalizeCode(s){
+    return String(s).toUpperCase().replace(/[\s\-]+/g, "");
+  }
+  // Looks up a typed private code against PRIVATE_CODES (never against the
+  // visible CANDIDATES label) and returns the matching candidate label, or
+  // null. This is the only way in — there's no public list to browse.
+  function findCandidate(raw){
+    var norm = normalizeCode(raw);
+    if(!norm) return null;
+    for(var i=0;i<CANDIDATES.length;i++){
+      var c = CANDIDATES[i];
+      if(normalizeCode(PRIVATE_CODES[c] || "") === norm) return c;
+    }
+    return null;
+  }
+
+  var fsDb = null;
+
+  // Connects to Firestore and opens a live listener on the "counters"
+  // collection so every open tab sees slot counts update in real time —
+  // no polling needed. Called once from initApp().
+  function initFirebase(){
+    if(!backendReady()) return;
+    try{
+      if(!firebase.apps.length){ firebase.initializeApp(FIREBASE_CONFIG); }
+      fsDb = firebase.firestore();
+      fsDb.collection("counters").onSnapshot(function(snap){
+        var counts = {};
+        snap.forEach(function(doc){ counts[doc.id] = doc.data().taken || 0; });
+        state.counts = counts;
+        state.countsLoaded = true;
+        state.netError = "";
+        render();
+      }, function(){
+        state.netError = "暂时连不上服务器，稍后会自动重试。";
+        render();
+      });
+      // Live "who's already booked" set — only candidate codes, never which
+      // examiner they picked — so the candidate picker can gray out and
+      // disable names the moment they're taken, on every open tab at once.
+      fsDb.collection("bookings").onSnapshot(function(snap){
+        var booked = {};
+        snap.forEach(function(doc){
+          var d = doc.data();
+          if(d && d.candidate) booked[d.candidate] = true;
+        });
+        state.bookedSet = booked;
+        render();
+      }, function(){ /* non-fatal: picker just won't gray out live; booking itself still works */ });
+    }catch(e){
+      state.netError = "Firebase 初始化失败，请检查 FIREBASE_CONFIG 是否填对。";
+      render();
+    }
+  }
+
+  // Checks (and books) a slot inside a single Firestore transaction, so two
+  // people clicking the very same instant for the last slot can never both
+  // win it — Firestore retries the transaction under the hood if it detects
+  // the counter changed under it, and only one of the two writes survives.
+  function checkMine(candidate){
+    return fsDb.collection("bookings").doc(slugify(candidate)).get().then(function(snap){
+      return { ok: true, record: snap.exists ? snap.data() : null };
+    });
+  }
+
+  function firestoreBook(candidate, examiner){
+    var bookingRef = fsDb.collection("bookings").doc(slugify(candidate));
+    var counterRef = fsDb.collection("counters").doc(examiner.key);
+    return fsDb.runTransaction(function(tx){
+      return tx.get(bookingRef).then(function(bookingSnap){
+        if(bookingSnap.exists){
+          return { alreadyBooked: true, record: bookingSnap.data() };
+        }
+        return tx.get(counterRef).then(function(counterSnap){
+          var taken = (counterSnap.exists && counterSnap.data().taken) || 0;
+          if(taken >= examiner.slots){
+            return { full: true };
+          }
+          var record = {
+            candidate: candidate,
+            examinerKey: examiner.key,
+            examinerName: examiner.name,
+            examinerNickname: examiner.nickname,
+            timestamp: new Date().toISOString()
+          };
+          tx.set(bookingRef, record);
+          tx.set(counterRef, { taken: taken + 1 }, { merge: true });
+          return { ok: true, record: record };
+        });
+      });
+    });
+  }
+
+  function adminReset(candidate){
+    var bookingRef = fsDb.collection("bookings").doc(slugify(candidate));
+    return fsDb.runTransaction(function(tx){
+      return tx.get(bookingRef).then(function(bookingSnap){
+        if(!bookingSnap.exists){ return { removed: false }; }
+        var data = bookingSnap.data();
+        var counterRef = fsDb.collection("counters").doc(data.examinerKey);
+        return tx.get(counterRef).then(function(counterSnap){
+          var taken = (counterSnap.exists && counterSnap.data().taken) || 0;
+          tx.delete(bookingRef);
+          tx.set(counterRef, { taken: Math.max(0, taken - 1) }, { merge: true });
+          return { removed: true };
+        });
+      });
+    });
+  }
+
+  // All sound effects share one lazily-created AudioContext instead of
+  // spinning up a new one per sound — cheaper, and avoids ever hitting a
+  // browser's cap on simultaneous AudioContexts if someone clicks fast.
+  // Created only on first use (most browsers block audio before a user
+  // gesture anyway), and never closed — it just sits idle between sounds.
+  var sharedAudioCtx = null;
+  function getAudioCtx(){
+    var Ctx = window.AudioContext || window.webkitAudioContext;
+    if(!Ctx) return null;
+    if(!sharedAudioCtx) sharedAudioCtx = new Ctx();
+    if(sharedAudioCtx.state === "suspended"){ try{ sharedAudioCtx.resume(); }catch(e){} }
+    return sharedAudioCtx;
+  }
+
+  // A soft, short "tick" played on every button-ish click, so the interface
+  // feels responsive even before a render finishes. Wrapped in try/catch:
+  // some browsers restrict audio until a user gesture, and this should
+  // never break the app's actual click handling if audio fails.
+  function playClickSound(){
+    try{
+      var ctx = getAudioCtx();
+      if(!ctx) return;
+      var now = ctx.currentTime;
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.value = 720;
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.09, now + 0.005);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.1);
+    }catch(e){ /* audio not available — click still works */ }
+  }
+
+  // A short "success" chime (no audio file — synthesized with the Web
+  // Audio API) that plays once a booking genuinely goes through. Wrapped
+  // in try/catch: some browsers restrict audio until a user gesture, and
+  // this should never break the booking flow if it fails.
+  function playSuccessChime(){
+    try{
+      var ctx = getAudioCtx();
+      if(!ctx) return;
+      var now = ctx.currentTime;
+      var notes = [523.25, 659.25, 783.99, 1046.50]; // C5 - E5 - G5 - C6, a bright little fanfare
+      notes.forEach(function(freq, i){
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        var start = now + i * 0.1;
+        gain.gain.setValueAtTime(0, start);
+        gain.gain.linearRampToValueAtTime(0.22, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.4);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start + 0.45);
+      });
+    }catch(e){ /* audio not available — booking still succeeded */ }
+  }
+
+  function attemptBooking(candidate, examiner){
+    if(!backendReady()){
+      state.bookingError = "后台还没接好（Firebase 还没设置），请联系 HR。";
+      render();
+      return;
+    }
+    state.booking = true; state.bookingError = ""; render();
+
+    firestoreBook(candidate, examiner).then(function(res){
+      state.booking = false;
+      if(!res){
+        state.bookingError = "预订失败，请重试。";
+        render();
+        return;
+      }
+      if(res.alreadyBooked){
+        state.myRecord = res.record;
+        state.confirmExaminer = null;
+        state.view = "ticket";
+        render();
+        return;
+      }
+      if(res.ok){
+        state.myRecord = res.record;
+        state.confirmExaminer = null;
+        state.view = "ticket";
+        render();
+        playSuccessChime();
+        return;
+      }
+      if(res.full){
+        state.bookingError = "抱歉，这位 Examiner 的名额刚刚满了，请选择其他 Examiner。";
+        state.confirmExaminer = null;
+        state.view = "pick-examiner";
+        render();
+        return;
+      }
+      state.bookingError = "系统正忙，请再点一次“确认选择”重试。";
+      render();
+    }).catch(function(){
+      state.booking = false;
+      state.bookingError = "网络出错了，请检查网络后重试。";
+      render();
+    });
+  }
+
+  /* ============== RENDER ============== */
+  function render(){
+    var root = document.getElementById("root");
+    root.innerHTML = topbar() + setupBanner() + body() + pageFooter();
+    wireEvents();
+    window.scrollTo({top:0, behavior: state._scrolled ? "smooth" : "auto"});
+    state._scrolled = true;
+  }
+
+  // A loud, unmissable notice while FIREBASE_CONFIG is still placeholder
+  // values — this is what you see while testing the file directly (e.g.
+  // previewing it here in chat) before finishing the setup guide's steps.
+  // It is NOT a bug: the page is correctly refusing to pretend a backend
+  // exists.
+  function setupBanner(){
+    if(backendReady()) return "";
+    return '' +
+      '<div class="setup-banner">' +
+        '⚠️ 还没接上 Firebase 后台（FIREBASE_CONFIG 还是占位文字）。这只是预览 — ' +
+        '照设置指南建好 Firebase 项目 + Firestore，把配置填进文件后，才能真正预订。' +
+      '</div>';
+  }
+
+  function pageFooter(){
+    return '<footer>UR MANAGEMENT &amp; SUPPLIES SDN BHD</footer>';
+  }
+
+  function topbar(){
+    return '' +
+      '<div class="topbar">' +
+        '<div class="brand">' +
+          '<img class="topbar-logo" src="' + UR_LOGO + '" alt="UR" />' +
+          '<div class="brand-divider"></div>' +
+          '<div class="mark">Q2</div>' +
+          '<div class="name">Quarter Bonus Exam <b>&middot; Examiner Booking</b></div>' +
+        '</div>' +
+        (state.view === "admin" || state.view === "admin-lock" ?
+          '<button class="admin-link" data-action="exit-admin">← 返回预订页</button>' :
+          '<button class="admin-link" data-action="open-admin">🔒 HR 后台</button>') +
+      '</div>';
+  }
+
+  function body(){
+    switch(state.view){
+      case "landing": return landingView();
+      case "pick-candidate": return pickCandidateView();
+      case "pick-examiner": return pickExaminerView();
+      case "ticket": return ticketView();
+      case "admin-lock": return adminLockView();
+      case "admin": return adminView();
+      default: return landingView();
+    }
+  }
+
+  function landingView(){
+    var pct = Math.round((totalBooked()/TOTAL_SLOTS)*100);
+    return '' +
+      (state.netError ? '<div class="net-banner">' + esc(state.netError) + '</div>' : '') +
+      '<div class="marquee">' +
+        '<img class="hero-logo" src="' + UR_LOGO + '" alt="UR" />' +
+        '<div class="eyebrow">Quarter 2 &middot; Bonus Assessment</div>' +
+        '<h1 class="display">选择你的 <em>Examiner</em></h1>' +
+        '<p class="sub">恭喜入围 Quarter 2 Bonus Exam！每位候选人只能预订一位 Examiner，名额有限，先选先得。输入你的 employee code，选择 Examiner 吧。</p>' +
+        '<div class="progress-wrap">' +
+          '<div class="progress-label"><span>已预订</span><span>' + totalBooked() + ' / ' + TOTAL_SLOTS + '</span></div>' +
+          '<div class="progress-track"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
+        '</div>' +
+        '<button class="cta" data-action="start">开始预订 &nbsp;🎫</button>' +
+        '<div class="film-strip">' + Array(18).fill('<span></span>').join('') + '</div>' +
+      '</div>';
+  }
+
+  function pickCandidateView(){
+    var busy = state.checkingMine;
+
+    // Step 2: a private code matched — show her own full name back so she
+    // can visually confirm it's really her before anything happens. This
+    // is the main guard against someone fat-fingering (or deliberately
+    // using) somebody else's code.
+    if(state.pendingConfirmCandidate){
+      var c = state.pendingConfirmCandidate;
+      var alreadyBooked = !!(state.bookedSet && state.bookedSet[c]);
+      return '' +
+        '<div class="panel">' +
+          '<div class="panel-head">' +
+            '<div><h2 class="display">确认身份</h2><p>请确认下面显示的是你自己的名字，再继续。</p></div>' +
+            '<button class="back-link" data-action="go-landing">← 返回</button>' +
+          '</div>' +
+          '<div class="modal" style="margin:12px auto;max-width:420px;">' +
+            '<div class="icon">🪪</div>' +
+            '<h3 class="display">' + esc(FULL_NAMES[c] || c) + '</h3>' +
+            '<p>' + (alreadyBooked ?
+              '这个代码已经预订过了。确认后会直接看到当时预订的票 —— 请务必确认这是你自己的名字，不要帮别人查看。' :
+              '一旦确认，就会用这个身份去预订 Examiner —— 请确认这真的是你自己，不要帮别人操作。') + '</p>' +
+            '<div class="modal-actions">' +
+              '<button class="btn-secondary" data-action="cancel-identity" ' + (busy?'disabled':'') + '>不是我，重新输入</button>' +
+              '<button class="btn-primary" data-action="confirm-identity" ' + (busy?'disabled':'') + '>' + (busy ? '查询中…' : '对，是我，继续') + '</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    }
+
+    // Step 1 (default and only entry point): type your own private code.
+    // There is deliberately no public list to browse — only HR can look
+    // codes up (in the admin panel), so nobody can see or guess anyone
+    // else's.
+    return '' +
+      '<div class="panel">' +
+        '<div class="panel-head">' +
+          '<div><h2 class="display">输入你的 employee code</h2><p>确认身份后才会进入预订——千万别帮别人操作。</p></div>' +
+          '<button class="back-link" data-action="go-landing">← 返回</button>' +
+        '</div>' +
+        '<div style="display:flex;gap:10px;flex-wrap:wrap;">' +
+          '<input class="search" style="flex:1;min-width:200px;margin:0;" placeholder="例如 URC0001" value="' + esc(state.codeInputValue) + '" data-role="code-input" />' +
+          '<button class="btn-primary" style="flex:none;padding:0 24px;border-radius:100px;" data-action="submit-code">查找</button>' +
+        '</div>' +
+        (state.codeError ? '<p style="color:var(--crimson);font-weight:700;font-size:13px;margin:10px 0 0;">' + esc(state.codeError) + '</p>' : '') +
+        '<p style="color:var(--muted);font-size:12.5px;margin:16px 0 0;">忘记 employee code 了？请联系 HR 查询。</p>' +
+      '</div>';
+  }
+
+  function pickExaminerView(){
+    var boxes = EXAMINERS.map(function(ex){
+      var taken = countFor(ex.key);
+      var left = ex.slots - taken;
+      var full = left <= 0;
+      return '<button class="booth' + (full ? ' full' : '') + '" style="--booth-accent:' + ex.accent + '" ' +
+        (full ? 'disabled' : 'data-action="ask-examiner" data-key="' + ex.key + '"') + '>' +
+        '<span class="icon">' + ex.icon + '</span>' +
+        '<div class="nickname">' + esc(ex.name) + '</div>' +
+        '<div class="seat-row"><span class="status-light' + (full ? '' : ' on') + '"></span><span class="status-label">' + (full ? '已满' : '可预订') + '</span></div>' +
+      '</button>';
+    }).join('');
+
+    var confirmModal = '';
+    if(state.confirmExaminer){
+      var ex = state.confirmExaminer;
+      confirmModal = '' +
+        '<div class="modal-back">' +
+          '<div class="modal" data-stop="1">' +
+            '<div class="icon">' + ex.icon + '</div>' +
+            '<h3 class="display">确认预订 ' + esc(ex.name) + '？</h3>' +
+            '<p>一旦确认，将无法自行修改，如需调整请联系 HR。' +
+              (state.bookingError ? '<br><span style="color:var(--crimson);font-weight:700;">' + esc(state.bookingError) + '</span>' : '') +
+            '</p>' +
+            '<div class="modal-actions">' +
+              '<button class="btn-secondary" data-action="close-modal" ' + (state.booking?'disabled':'') + '>再想想</button>' +
+              '<button class="btn-primary" data-action="confirm-booking" ' + (state.booking?'disabled':'') + '>' + (state.booking ? '预订中...' : '确认选择') + '</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    }
+
+    return '' +
+      '<div class="panel">' +
+        '<div class="panel-head">' +
+          '<div><h2 class="display">' + esc(FULL_NAMES[state.currentCandidate] || state.currentCandidate || '') + ' ，选一位 Examiner 吧</h2><p>名额满了会变暗，无法再选择。</p></div>' +
+          '<button class="back-link" data-action="go-pick-candidate">← 换一个代号</button>' +
+        '</div>' +
+        '<div class="booth-grid">' + boxes + '</div>' +
+      '</div>' +
+      confirmModal;
+  }
+
+  function ticketView(){
+    var rec = state.myRecord;
+    if(!rec){
+      return '<div class="panel"><p style="text-align:center;color:var(--muted);">找不到预订记录。</p><div style="text-align:center;margin-top:16px;"><button class="back-link" data-action="go-landing">← 返回首页</button></div></div>';
+    }
+    var ex = examinerByKey(rec.examinerKey) || {};
+    return '' +
+      '<div class="ticket-wrap">' +
+        '<div class="ticket">' +
+          '<div class="ticket-top">' +
+            '<div class="stamp">✓ 预订成功</div>' +
+            '<div class="exname">' + (ex.icon||'') + '&nbsp; ' + esc(rec.examinerName || ex.name || '') + '</div>' +
+          '</div>' +
+          '<div class="ticket-perf"></div>' +
+          '<div class="ticket-bottom">' +
+            '<div class="ticket-field"><div class="k">候选人代号</div><div class="v">' + esc(rec.candidate) + '</div></div>' +
+            '<div class="ticket-field"><div class="k">预订时间</div><div class="v">' + fmtTime(rec.timestamp) + '</div></div>' +
+            '<div class="ticket-field" style="grid-column:1/-1;"><div class="k">考试轮次</div><div class="v">Quarter 2 Bonus Exam</div></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<p style="text-align:center;color:var(--muted);font-size:13px;max-width:400px;margin:22px auto 0;">截图保存这张票吧。如需修改 Examiner，请直接联系 HR。</p>' +
+      '<div style="text-align:center;margin-top:20px;"><button class="back-link" data-action="go-landing">← 返回首页</button></div>';
+  }
+
+  function adminLockView(){
+    return '' +
+      '<div class="panel lock-form">' +
+        '<div class="icon">🔐</div>' +
+        '<h2 class="display" style="font-size:22px;margin:0 0 6px;">HR 后台</h2>' +
+        '<p style="color:var(--muted);font-size:13.5px;margin:0;">输入密码查看所有预订记录</p>' +
+        '<input class="pw-input" type="password" placeholder="密码" data-role="admin-pw" />' +
+        '<div class="pw-error">' + esc(state.adminError) + '</div>' +
+        '<button class="cta" style="width:100%;justify-content:center;" data-action="submit-admin-pw">进入后台</button>' +
+      '</div>';
+  }
+
+  function adminView(){
+    var statCards = EXAMINERS.map(function(ex){
+      var taken = countFor(ex.key);
+      var pct = Math.round((taken/ex.slots)*100);
+      return '<div class="stat-card">' +
+        '<div class="label">' + ex.icon + ' ' + esc(ex.name) + '</div>' +
+        '<div class="val">' + taken + ' / ' + ex.slots + '</div>' +
+        '<div class="bar"><i style="width:' + pct + '%;background:' + ex.accent + '"></i></div>' +
+      '</div>';
+    }).join('');
+
+    var byCandidate = {};
+    state.adminRows.forEach(function(r){ byCandidate[r.candidate] = r; });
+
+    var q = state.adminSearch.trim().toUpperCase();
+    var rows = CANDIDATES.filter(function(c){
+      if(!q) return true;
+      var name = (FULL_NAMES[c]||"").toUpperCase();
+      var code = (PRIVATE_CODES[c]||"").toUpperCase();
+      return c.toUpperCase().indexOf(q) !== -1 || name.indexOf(q) !== -1 || code.indexOf(q) !== -1;
+    }).map(function(c){
+      var rec = byCandidate[c];
+      var nameCell = '<td>' + esc(FULL_NAMES[c] || c) + '<div style="color:var(--muted);font-size:11px;">' + esc(PRIVATE_CODES[c] || '') + '</div></td>';
+      if(rec){
+        var ex = examinerByKey(rec.examinerKey) || {};
+        return '<tr>' +
+          nameCell +
+          '<td><span class="pill booked">已预订</span></td>' +
+          '<td>' + (ex.icon||'') + ' ' + esc(rec.examinerName) + '</td>' +
+          '<td class="mono">' + fmtTime(rec.timestamp) + '</td>' +
+          '<td><button class="tiny-btn" data-action="reset" data-candidate="' + esc(c) + '">重置</button></td>' +
+        '</tr>';
+      }
+      return '<tr>' +
+        nameCell +
+        '<td><span class="pill waiting">待选</span></td>' +
+        '<td style="color:var(--muted);">&mdash;</td>' +
+        '<td style="color:var(--muted);">&mdash;</td>' +
+        '<td></td>' +
+      '</tr>';
+    }).join('');
+
+    return '' +
+      '<div class="panel">' +
+        '<div class="panel-head">' +
+          '<div><h2 class="display"><span class="conn-dot"></span>HR 后台面板</h2><p>' + (state.adminLoading ? '正在读取 Firebase…' : ('实时查看 25 位候选人的 Examiner 选择。' + (state.adminLoaded ? '' : ' 暂时读取不到数据，检查 FIREBASE_CONFIG / ADMIN_KEY 是否正确。'))) + '</p></div>' +
+        '</div>' +
+        '<div class="stat-row">' + statCards + '</div>' +
+        '<div class="toolbar">' +
+          '<input class="search" style="margin:0;flex:1;min-width:180px;" placeholder="搜索姓名 / 代号 / employee code" value="' + esc(state.adminSearch) + '" data-role="search-admin" />' +
+          '<button class="copy-btn" data-action="copy-csv">' + (state.copyFeedback ? '✓ 已复制' : '📋 复制为 CSV') + '</button>' +
+          '<button class="copy-btn" data-action="refresh-admin">🔄 刷新</button>' +
+        '</div>' +
+        '<div class="table-scroll">' +
+          '<table class="admin-table">' +
+            '<thead><tr><th>姓名 / employee code</th><th>状态</th><th>选择的 Examiner</th><th>预订时间</th><th></th></tr></thead>' +
+            '<tbody>' + rows + '</tbody>' +
+          '</table>' +
+        '</div>' +
+      '</div>';
+  }
+
+  /* ============== EVENTS ============== */
+  function wireEvents(){
+    var root = document.getElementById("root");
+
+    root.querySelectorAll('[data-action]').forEach(function(el){
+      el.addEventListener('click', function(ev){
+        if(el.hasAttribute('data-stop')) return;
+        playClickSound();
+        var action = el.getAttribute('data-action');
+        handleAction(action, el, ev);
+      });
+    });
+
+    var searchAdmin = root.querySelector('[data-role="search-admin"]');
+    if(searchAdmin){
+      searchAdmin.addEventListener('input', function(){ state.adminSearch = searchAdmin.value; renderKeepFocus(searchAdmin); });
+    }
+    var pwInput = root.querySelector('[data-role="admin-pw"]');
+    if(pwInput){
+      pwInput.focus();
+      pwInput.addEventListener('keydown', function(ev){
+        if(ev.key === 'Enter'){ handleAction('submit-admin-pw'); }
+      });
+    }
+    var codeInput = root.querySelector('[data-role="code-input"]');
+    if(codeInput){
+      codeInput.focus();
+      codeInput.addEventListener('input', function(){ state.codeInputValue = codeInput.value; });
+      codeInput.addEventListener('keydown', function(ev){
+        if(ev.key === 'Enter'){ handleAction('submit-code'); }
+      });
+    }
+
+    var modalBack = root.querySelector('.modal-back');
+    if(modalBack){
+      modalBack.addEventListener('click', function(ev){
+        if(ev.target === modalBack){ state.confirmExaminer = null; state.bookingError=""; render(); }
+      });
+    }
+  }
+
+  function renderKeepFocus(inputEl){
+    var pos = inputEl.selectionStart;
+    var val = inputEl.value;
+    render();
+    var root = document.getElementById("root");
+    var again = root.querySelector('[data-role="' + inputEl.getAttribute('data-role') + '"]');
+    if(again){ again.focus(); try{ again.setSelectionRange(pos,pos); }catch(e){} }
+  }
+
+  function handleAction(action, el){
+    if(action === "start"){ state.view = "pick-candidate"; render(); return; }
+    if(action === "go-landing"){
+      state.view = "landing"; state.currentCandidate=null;
+      state.pendingConfirmCandidate = null; state.codeInputValue = ""; state.codeError = "";
+      render();
+      return;
+    }
+    if(action === "go-pick-candidate"){
+      state.view = "pick-candidate";
+      state.pendingConfirmCandidate = null; state.codeInputValue = ""; state.codeError = "";
+      render();
+      return;
+    }
+
+    if(action === "submit-code"){
+      var root0 = document.getElementById("root");
+      var inputEl = root0.querySelector('[data-role="code-input"]');
+      var raw = inputEl ? inputEl.value : state.codeInputValue;
+      var match = findCandidate(raw);
+      if(!match){
+        state.codeError = raw.trim() ? "找不到这个 employee code，请检查是否输入正确。" : "请先输入你的 employee code。";
+        render();
+        return;
+      }
+      state.codeError = "";
+      state.pendingConfirmCandidate = match;
+      render();
+      return;
+    }
+
+    if(action === "cancel-identity"){
+      state.pendingConfirmCandidate = null;
+      state.codeInputValue = "";
+      state.codeError = "";
+      render();
+      return;
+    }
+
+    if(action === "confirm-identity"){
+      if(state.checkingMine) return;
+      var c = state.pendingConfirmCandidate;
+      if(!c) return;
+      state.currentCandidate = c;
+      state.checkingMine = true;
+      state.bookingError = "";
+      render();
+      if(!backendReady()){
+        state.checkingMine = false;
+        state.pendingConfirmCandidate = null;
+        state.view = "pick-examiner";
+        render();
+        return;
+      }
+      checkMine(c).then(function(res){
+        state.checkingMine = false;
+        state.pendingConfirmCandidate = null;
+        if(res && res.ok && res.record){
+          state.myRecord = res.record;
+          state.view = "ticket";
+        } else {
+          state.view = "pick-examiner";
+        }
+        render();
+      }).catch(function(){
+        state.checkingMine = false;
+        state.pendingConfirmCandidate = null;
+        state.view = "pick-examiner"; // fail open — worst case they try to book and the server catches a dupe
+        render();
+      });
+      return;
+    }
+
+    if(action === "ask-examiner"){
+      var key = el.getAttribute('data-key');
+      state.confirmExaminer = examinerByKey(key);
+      state.bookingError = "";
+      render();
+      return;
+    }
+    if(action === "close-modal"){ state.confirmExaminer = null; state.bookingError=""; render(); return; }
+    if(action === "confirm-booking"){
+      if(state.confirmExaminer && state.currentCandidate){
+        attemptBooking(state.currentCandidate, state.confirmExaminer);
+      }
+      return;
+    }
+
+    if(action === "open-admin"){ state.view = "admin-lock"; state.adminError=""; render(); return; }
+    if(action === "exit-admin"){ state.view = "landing"; render(); return; }
+    if(action === "submit-admin-pw"){
+      var root = document.getElementById("root");
+      var pw = root.querySelector('[data-role="admin-pw"]');
+      var val = pw ? pw.value : "";
+      if(val === ADMIN_KEY){
+        state.view = "admin"; state.adminError="";
+        render();
+        loadAdminData();
+      } else {
+        state.adminError = "密码错误，请重试。";
+        render();
+      }
+      return;
+    }
+    if(action === "refresh-admin"){ loadAdminData(); return; }
+    if(action === "reset"){
+      var c2 = el.getAttribute('data-candidate');
+      if(el.getAttribute('data-armed') !== '1'){
+        el.setAttribute('data-armed','1');
+        el.textContent = '确认重置？';
+        setTimeout(function(){ if(el.isConnected){ el.setAttribute('data-armed','0'); el.textContent='重置'; } }, 3000);
+        return;
+      }
+      el.disabled = true;
+      el.textContent = '重置中…';
+      adminReset(c2).then(function(){ loadAdminData(); }).catch(function(){ loadAdminData(); });
+      return;
+    }
+    if(action === "copy-csv"){
+      var lines = ["Candidate,FullName,PrivateCode,Status,Examiner,Timestamp"];
+      var byC = {};
+      state.adminRows.forEach(function(r){ byC[r.candidate] = r; });
+      CANDIDATES.forEach(function(c3){
+        var rec = byC[c3];
+        var name3 = FULL_NAMES[c3] || "";
+        var code3 = PRIVATE_CODES[c3] || "";
+        if(rec){ lines.push([c3, name3, code3, "Booked", rec.examinerName, rec.timestamp].join(",")); }
+        else { lines.push([c3, name3, code3, "Waiting", "", ""].join(",")); }
+      });
+      var csv = lines.join("\n");
+      var done = function(){ state.copyFeedback = true; render(); setTimeout(function(){ state.copyFeedback=false; render(); }, 1800); };
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(csv).then(done).catch(done);
+      } else { done(); }
+      return;
+    }
+  }
+
+  function loadAdminData(){
+    if(!backendReady()){
+      state.adminLoaded = false;
+      render();
+      return;
+    }
+    state.adminLoading = true;
+    render();
+    fsDb.collection("bookings").get().then(function(snap){
+      state.adminLoading = false;
+      var rows = [];
+      snap.forEach(function(doc){ rows.push(doc.data()); });
+      state.adminRows = rows;
+      state.adminLoaded = true;
+      render();
+    }).catch(function(){
+      state.adminLoading = false;
+      state.adminLoaded = false;
+      render();
+    });
+  }
+
+  function initApp(){
+    render();
+    initFirebase();
+  }
+
+  initApp();
+})();
+</script>
