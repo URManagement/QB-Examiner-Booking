@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Q2 Examiner Booking</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
 
   :root{
     /* UR Klinik-inspired: warm ivory ground, clinical white cards, soft gold accent */
@@ -210,21 +210,46 @@
   .mystery-card.shaking .mystery-front{ box-shadow:0 16px 34px rgba(0,0,0,0.3); }
   .mystery-face{
     position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden;
-    border:1px solid var(--line); border-radius:16px; padding:22px;
+    border:1px solid var(--line); border-radius:18px; padding:24px 22px;
     overflow:hidden; display:flex; flex-direction:column; justify-content:center;
   }
-  .mystery-front{ background:var(--surface-2); transition:border-color .18s ease, transform .18s ease; }
-  .mystery-front::after{
-    content:''; position:absolute; inset:0; border-radius:16px;
-    background:radial-gradient(220px 120px at 90% -10%, var(--booth-accent,var(--gold)), transparent 60%);
-    opacity:.14; pointer-events:none;
+  .mystery-front{
+    background:
+      linear-gradient(155deg, rgba(255,255,255,0.5), rgba(255,255,255,0) 40%),
+      var(--surface-2);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25), 0 1px 2px rgba(120,90,40,0.06);
+    transition:border-color .18s ease, transform .18s ease, box-shadow .18s ease;
   }
-  .mystery-card:hover:not(.full):not(.flipped) .mystery-front{ border-color:var(--booth-accent,var(--gold)); transform:translateY(-3px); box-shadow:0 14px 32px rgba(0,0,0,0.28); }
+  .mystery-front::after{
+    content:''; position:absolute; inset:0; border-radius:18px;
+    background:radial-gradient(220px 120px at 90% -10%, var(--booth-accent,var(--gold)), transparent 60%);
+    opacity:.13; pointer-events:none;
+  }
+  .mystery-card:hover:not(.full):not(.flipped) .mystery-front{
+    border-color:var(--booth-accent,var(--gold)); transform:translateY(-3px);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.3), 0 14px 32px rgba(0,0,0,0.22);
+  }
   .mystery-back{ background:var(--surface-3); transform:rotateY(180deg); }
   .mystery-card .icon{ font-size:26px; margin-bottom:10px; display:block; }
+
+  /* The little "?" monogram standing in for the examiner's face — a thin
+     engraved ring rather than a bright emoji, so it reads as a quiet,
+     considered mark instead of a cartoon question mark. */
+  .mystery-glyph{
+    width:34px; height:34px; border-radius:50%; flex:none;
+    border:1.5px solid var(--booth-accent,var(--gold));
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Cormorant Garamond',serif; font-size:19px; font-weight:600;
+    color:var(--booth-accent,var(--gold)); margin-bottom:16px;
+  }
   .mystery-card .hint{
-    font-family:'Playfair Display',serif; font-style:italic; font-size:16px; font-weight:700;
-    letter-spacing:0.01em; margin-bottom:14px; color:var(--ink-dim);
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-size:21px; font-weight:600;
+    line-height:1.25; letter-spacing:0.01em; margin-bottom:16px; color:var(--ink);
+  }
+  .mystery-card .hint .cake{ font-style:normal; margin-right:2px; }
+  .mystery-card .hint-rule{
+    width:30px; height:1px; margin-bottom:14px; flex:none;
+    background:linear-gradient(90deg, var(--booth-accent,var(--gold)), transparent);
   }
   .mystery-card .nickname{ font-family:'Playfair Display',serif; font-size:19px; font-weight:700; letter-spacing:0.02em; margin-bottom:6px; }
   .mystery-card .flip-status{ font-family:'Space Mono',monospace; font-size:12px; color:var(--ink-dim); }
@@ -462,19 +487,55 @@
     "SU-WEI XUAN": "WONG WEI XUAN"
   };
 
+  // Each feature is {type, text}. "type" only decides which little icon
+  // prefixes it on the card (birthday -> 🎂, so a bare date doesn't read as
+  // something else); "text" is still the exact string used as the unique
+  // key in Firestore's usedFeatures/{examinerKey} doc, so it must stay
+  // stable once real bookings start referencing it.
   var EXAMINERS = [
     { key:"fong",   name:"Dr. Fong",   slots:4, nickname:"The Steady Compass", icon:"🧭", accent:"#c9a15a",
-      features:["28 June", "巨蟹座", "UR创办人", "喜欢健身，钢琴"] },
+      features:[
+        {type:"birthday", text:"28 June"},
+        {type:"zodiac",   text:"巨蟹座"},
+        {type:"role",     text:"UR创办人"},
+        {type:"hobby",    text:"喜欢健身，钢琴"}
+      ] },
     { key:"jaye",   name:"Dr. Jaye",   slots:4, nickname:"The Sharp Eye",      icon:"🦅", accent:"#8a9bd8",
-      features:["26 May", "双子座", "aka UR爸爸", "最近很厉害制作好听的歌"] },
+      features:[
+        {type:"birthday", text:"26 May"},
+        {type:"zodiac",   text:"双子座"},
+        {type:"role",     text:"aka UR爸爸"},
+        {type:"hobby",    text:"最近很厉害制作好听的歌"}
+      ] },
     { key:"jovyn",  name:"Dr. Jovyn",  slots:5, nickname:"The Calm Current",   icon:"🌊", accent:"#5fae8c",
-      features:["2 May", "金牛座", "aka UR妈妈", "喜欢健身 / yoga", "FOL创办人"] },
+      features:[
+        {type:"birthday", text:"2 May"},
+        {type:"zodiac",   text:"金牛座"},
+        {type:"role",     text:"aka UR妈妈"},
+        {type:"hobby",    text:"喜欢健身 / yoga"},
+        {type:"role",     text:"FOL创办人"}
+      ] },
     { key:"nicole", name:"Dr. Nicole", slots:4, nickname:"The Bright Spark",   icon:"⚡",       accent:"#e0a34d",
-      features:["18 January", "摩羯座", "UR Podcast主持人", "喜欢米奇"] },
+      features:[
+        {type:"birthday", text:"18 January"},
+        {type:"zodiac",   text:"摩羯座"},
+        {type:"role",     text:"UR Podcast主持人"},
+        {type:"hobby",    text:"喜欢米奇"}
+      ] },
     { key:"jem",    name:"Dr. Jem",    slots:4, nickname:"The Warm Anchor",    icon:"⚓",       accent:"#c0788f",
-      features:["24 September", "天秤座", "她是FOL & S&B主持人", "看戏，唱歌"] },
+      features:[
+        {type:"birthday", text:"24 September"},
+        {type:"zodiac",   text:"天秤座"},
+        {type:"role",     text:"她是FOL & S&B主持人"},
+        {type:"hobby",    text:"看戏，唱歌"}
+      ] },
     { key:"xuan",   name:"Dr. Xuan",   slots:4, nickname:"The Quiet Focus",    icon:"🎯", accent:"#7fb0c9",
-      features:["28 April", "金牛座", "他是FOL & S&B主持人", "喜欢组装的东西"] }
+      features:[
+        {type:"birthday", text:"28 April"},
+        {type:"zodiac",   text:"金牛座"},
+        {type:"role",     text:"他是FOL & S&B主持人"},
+        {type:"hobby",    text:"喜欢组装的东西"}
+      ] }
   ];
 
   // Each candidate sees only ONE of an examiner's features on the mystery
@@ -494,14 +555,16 @@
   function remainingFeatures(examiner){
     var used = (state.usedFeatures && state.usedFeatures[examiner.key]) || {};
     var all = examiner.features || [];
-    var remaining = all.filter(function(f){ return !used[f]; });
+    var remaining = all.filter(function(f){ return !used[f.text]; });
     // Fallback only if something got out of sync (e.g. rules not yet
     // published so retiring silently failed) — never show a blank card.
     return remaining.length ? remaining : all;
   }
+  // Returns the {type, text} object (not just a string) so the caller can
+  // decide how to render it (e.g. a 🎂 next to a birthday date).
   function featureFor(candidateCode, examiner){
     var feats = remainingFeatures(examiner);
-    if(!feats.length) return "";
+    if(!feats.length) return null;
     var ci = CANDIDATES.indexOf(candidateCode);
     if(ci < 0) ci = 0;
     var offset = 0;
@@ -539,6 +602,7 @@
     codeError: "",
     pendingConfirmCandidate: null, // a matched code awaiting the "is this you?" confirmation
     mysteryOrder: null,        // shuffled array of examiner keys for this candidate's card layout
+    pendingCardKey: null,      // examiner key of a card just clicked, awaiting the "sure?" confirm
     shakingKey: null,          // examiner key currently doing the pre-flip "shake the box" wobble
     flippingKey: null,         // examiner key of the card currently flipped/booking, if any
     booking: false,
@@ -571,6 +635,7 @@
   // doesn't mean the same thing between different people.
   function enterPickExaminer(){
     state.view = "pick-examiner";
+    state.pendingCardKey = null;
     state.shakingKey = null;
     state.flippingKey = null;
     state.mysteryOrder = shuffleArr(EXAMINERS.map(function(e){ return e.key; }));
@@ -1053,7 +1118,7 @@
       state.mysteryOrder = shuffleArr(EXAMINERS.map(function(e){ return e.key; }));
     }
     var ordered = state.mysteryOrder.map(examinerByKey).filter(Boolean);
-    var anyBusy = !!(state.flippingKey || state.shakingKey);
+    var anyBusy = !!(state.flippingKey || state.shakingKey || state.pendingCardKey);
 
     var boxes = ordered.map(function(ex){
       var taken = countFor(ex.key);
@@ -1063,12 +1128,15 @@
       var flipped = state.flippingKey === ex.key;
       var cls = "mystery-card" + (full ? " full" : "") + (shaking ? " shaking" : "") + (flipped ? " flipped" : "");
       var clickable = !full && !anyBusy;
+      var feat = featureFor(state.currentCandidate, ex);
+      var featText = feat ? (feat.type === "birthday" ? '<span class="cake">🎂</span> ' + esc(feat.text) : esc(feat.text)) : "";
       return '<button class="' + cls + '" style="--booth-accent:' + ex.accent + '" data-key="' + ex.key + '" ' +
         (clickable ? 'data-action="ask-examiner"' : 'disabled') + '>' +
         '<span class="mystery-inner">' +
           '<span class="mystery-face mystery-front">' +
-            '<span class="icon">❓</span>' +
-            '<span class="hint">' + esc(featureFor(state.currentCandidate, ex)) + '</span>' +
+            '<span class="mystery-glyph">?</span>' +
+            '<span class="hint">' + featText + '</span>' +
+            '<span class="hint-rule"></span>' +
             '<span class="seat-row"><span class="status-light' + (full ? '' : ' on') + '"></span><span class="status-label">' + (full ? '已满' : '可预订') + '</span></span>' +
           '</span>' +
           '<span class="mystery-face mystery-back">' +
@@ -1080,15 +1148,35 @@
       '</button>';
     }).join('');
 
+    var confirmModal = '';
+    if(state.pendingCardKey){
+      var pendingEx = examinerByKey(state.pendingCardKey);
+      if(pendingEx){
+        confirmModal = '' +
+          '<div class="modal-back">' +
+            '<div class="modal" data-stop="1">' +
+              '<div class="mystery-glyph" style="margin:0 auto 14px;">?</div>' +
+              '<h3 class="display">确定要翻开这张卡吗？</h3>' +
+              '<p>翻开之后会直接揭晓并算预订成功，无法反悔或换卡，请再确认一次。</p>' +
+              '<div class="modal-actions">' +
+                '<button class="btn-secondary" data-action="cancel-card-pick">再想想</button>' +
+                '<button class="btn-primary" data-action="confirm-card-pick">对，翻开它</button>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+      }
+    }
+
     return '' +
       '<div class="panel">' +
         '<div class="panel-head">' +
-          '<div><h2 class="display">' + esc(FULL_NAMES[state.currentCandidate] || state.currentCandidate || '') + ' ，翻开一张卡，看看是哪位 Examiner 吧</h2><p>卡片顺序是随机打乱的，翻开就直接算预订成功，请谨慎选择。</p></div>' +
+          '<div><h2 class="display">' + esc(FULL_NAMES[state.currentCandidate] || state.currentCandidate || '') + ' ，翻开一张卡，看看是哪位 Examiner 吧</h2><p>卡片顺序是随机打乱的，点了会先请你确认一次，确认后翻开就直接算预订成功。</p></div>' +
           '<button class="back-link" data-action="go-pick-candidate" ' + (anyBusy ? 'disabled' : '') + '>← 换一个代号</button>' +
         '</div>' +
         (state.bookingError ? '<p style="color:var(--crimson);font-weight:700;font-size:13px;margin:0 0 16px;">' + esc(state.bookingError) + '</p>' : '') +
         '<div class="mystery-grid">' + boxes + '</div>' +
-      '</div>';
+      '</div>' +
+      confirmModal;
   }
 
   function ticketView(){
@@ -1203,6 +1291,16 @@
       });
     });
 
+    // Click-outside-to-cancel for the "sure you want to open this card?"
+    // confirm dialog — only when the click lands on the dimmed backdrop
+    // itself, never when it bubbles up from the dialog box inside it.
+    var pickModalBack = root.querySelector('.modal-back');
+    if(pickModalBack){
+      pickModalBack.addEventListener('click', function(ev){
+        if(ev.target === pickModalBack){ handleAction('cancel-card-pick'); }
+      });
+    }
+
     var searchAdmin = root.querySelector('[data-role="search-admin"]');
     if(searchAdmin){
       searchAdmin.addEventListener('input', function(){ state.adminSearch = searchAdmin.value; renderKeepFocus(searchAdmin); });
@@ -1308,29 +1406,48 @@
     }
 
     if(action === "ask-examiner"){
-      if(state.shakingKey || state.flippingKey || state.booking) return; // one card at a time
+      // First tap just opens a "sure?" confirmation — nothing happens to
+      // this card yet. See "confirm-card-pick" for the actual shake/flip/
+      // book sequence.
+      if(state.shakingKey || state.flippingKey || state.booking || state.pendingCardKey) return;
       var key = el.getAttribute('data-key');
       var examiner = examinerByKey(key);
       if(!examiner || !state.currentCandidate) return;
+      state.pendingCardKey = key;
+      render();
+      return;
+    }
+    if(action === "cancel-card-pick"){
+      state.pendingCardKey = null;
+      render();
+      return;
+    }
+    if(action === "confirm-card-pick"){
+      var pendingKey = state.pendingCardKey;
+      if(!pendingKey) return;
+      var pendingExaminer = examinerByKey(pendingKey);
+      if(!pendingExaminer || !state.currentCandidate) return;
       var candidateForBooking = state.currentCandidate;
       // Capture exactly the feature this candidate is looking at right now,
       // before anything else can shift the remaining pool — this is the
       // one that gets retired if the booking goes through.
-      var featureShown = featureFor(candidateForBooking, examiner);
-      state.shakingKey = key;
+      var featureShown = featureFor(candidateForBooking, pendingExaminer);
+      var featureText = featureShown ? featureShown.text : "";
+      state.pendingCardKey = null;
+      state.shakingKey = pendingKey;
       state.bookingError = "";
       render();
       // Shake the box first, THEN flip it open — flipping the card IS the
       // booking action, so the reveal should feel like the real moment of
       // commitment, not a decorative delay.
       setTimeout(function(){
-        if(state.shakingKey !== key) return; // candidate backed out / state moved on
+        if(state.shakingKey !== pendingKey) return; // candidate backed out / state moved on
         state.shakingKey = null;
-        state.flippingKey = key;
+        state.flippingKey = pendingKey;
         render();
         fireConfetti();
         setTimeout(function(){
-          attemptBooking(candidateForBooking, examiner, featureShown);
+          attemptBooking(candidateForBooking, pendingExaminer, featureText);
         }, 700);
       }, 600);
       return;
