@@ -25,24 +25,11 @@
     --radius: 14px;
     color-scheme: light;
   }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --bg:#18130f;
-      --surface:#221b15;
-      --surface-2:#2b2219;
-      --surface-3:#382c1e;
-      --gold:#d6ab6c;
-      --gold-bright:#ecc78e;
-      --crimson:#d16b7b;
-      --jade:#6cbb99;
-      --ink:#f6ecd9;
-      --ink-dim:#d9cbae;
-      --muted:#a89a7e;
-      --line:rgba(214,171,108,0.24);
-      --shadow: 0 20px 60px rgba(0,0,0,0.5);
-      color-scheme: dark;
-    }
-  }
+  /* Deliberately no @media (prefers-color-scheme: dark) here — this page
+     always shows the same UR gold/cream look regardless of whether the
+     visitor's phone or computer is set to dark mode, so it looks
+     identical everywhere. The rule below stays reachable only if a
+     manual light/dark toggle is added later. */
   :root[data-theme="dark"]{
     --bg:#18130f;
     --surface:#221b15;
@@ -182,23 +169,65 @@
   .stub.done{ opacity:.55; }
   .stub.done .tag.booked{ color:var(--jade); font-weight:700; }
 
-  /* ---------- Examiner booths ---------- */
-  .booth-grid{
+  /* ---------- Examiner mystery cards ---------- */
+  .mystery-grid{
     display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:16px;
+    perspective:1400px;
   }
-  .booth{
-    position:relative; text-align:left; background:var(--surface-2);
+  .mystery-card{
+    position:relative; height:196px; padding:0; margin:0; border:none; background:none;
+    text-align:left; cursor:pointer; color:var(--ink); font:inherit;
+    perspective:900px;
+  }
+  .mystery-card:disabled{ cursor:not-allowed; }
+  .mystery-inner{
+    position:relative; display:block; width:100%; height:100%;
+    transform-style:preserve-3d; transition:transform .7s cubic-bezier(.34,.2,.2,1.06);
+    will-change:transform;
+  }
+  .mystery-card.flipped .mystery-inner{ transform:rotateY(180deg) scale(1.04); }
+  .mystery-card.flipped{ z-index:2; }
+
+  /* Pre-flip "shake the box" moment — a quick, increasingly wild 3D
+     wobble before the card actually turns over, like rattling a mystery
+     box to guess what's inside. */
+  @keyframes mysteryShake{
+    0%   { transform:rotateZ(0deg)   rotateX(0deg)  rotateY(0deg)   translateY(0)    scale(1); }
+    12%  { transform:rotateZ(-3deg)  rotateX(7deg)  rotateY(-10deg) translateY(-3px) scale(1.02); }
+    24%  { transform:rotateZ(3deg)   rotateX(-7deg) rotateY(10deg)  translateY(2px)  scale(1.03); }
+    36%  { transform:rotateZ(-5deg)  rotateX(8deg)  rotateY(-12deg) translateY(-4px) scale(1.04); }
+    48%  { transform:rotateZ(5deg)   rotateX(-8deg) rotateY(12deg)  translateY(3px)  scale(1.05); }
+    60%  { transform:rotateZ(-4deg)  rotateX(6deg)  rotateY(-9deg)  translateY(-3px) scale(1.04); }
+    72%  { transform:rotateZ(4deg)   rotateX(-5deg) rotateY(8deg)   translateY(2px)  scale(1.03); }
+    84%  { transform:rotateZ(-2deg)  rotateX(3deg)  rotateY(-4deg)  translateY(-1px) scale(1.02); }
+    100% { transform:rotateZ(0deg)  rotateX(0deg)  rotateY(0deg)   translateY(0)    scale(1.01); }
+  }
+  .mystery-card.shaking{ z-index:2; }
+  .mystery-card.shaking .mystery-inner{
+    animation:mysteryShake .6s ease-in-out both;
+    transition:none;
+  }
+  .mystery-card.shaking .mystery-front{ box-shadow:0 16px 34px rgba(0,0,0,0.3); }
+  .mystery-face{
+    position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden;
     border:1px solid var(--line); border-radius:16px; padding:22px;
-    transition:all .18s ease; color:var(--ink); overflow:hidden;
+    overflow:hidden; display:flex; flex-direction:column; justify-content:center;
   }
-  .booth::after{
+  .mystery-front{ background:var(--surface-2); transition:border-color .18s ease, transform .18s ease; }
+  .mystery-front::after{
     content:''; position:absolute; inset:0; border-radius:16px;
-    background:radial-gradient(220px 120px at 90% -10%, var(--booth-accent,var(--gold)) , transparent 60%);
+    background:radial-gradient(220px 120px at 90% -10%, var(--booth-accent,var(--gold)), transparent 60%);
     opacity:.14; pointer-events:none;
   }
-  .booth:hover:not(.full){ border-color:var(--booth-accent,var(--gold)); transform:translateY(-3px); box-shadow:0 14px 32px rgba(0,0,0,0.28); }
-  .booth .icon{ font-size:26px; margin-bottom:10px; display:block; }
-  .booth .nickname{ font-family:'Playfair Display',serif; font-size:19px; font-weight:700; letter-spacing:0.02em; margin-bottom:14px; }
+  .mystery-card:hover:not(.full):not(.flipped) .mystery-front{ border-color:var(--booth-accent,var(--gold)); transform:translateY(-3px); box-shadow:0 14px 32px rgba(0,0,0,0.28); }
+  .mystery-back{ background:var(--surface-3); transform:rotateY(180deg); }
+  .mystery-card .icon{ font-size:26px; margin-bottom:10px; display:block; }
+  .mystery-card .hint{
+    font-family:'Playfair Display',serif; font-style:italic; font-size:16px; font-weight:700;
+    letter-spacing:0.01em; margin-bottom:14px; color:var(--ink-dim);
+  }
+  .mystery-card .nickname{ font-family:'Playfair Display',serif; font-size:19px; font-weight:700; letter-spacing:0.02em; margin-bottom:6px; }
+  .mystery-card .flip-status{ font-family:'Space Mono',monospace; font-size:12px; color:var(--ink-dim); }
   .seat-row{ display:flex; align-items:center; gap:8px; }
   .status-light{
     width:10px; height:10px; border-radius:50%; flex:none;
@@ -211,12 +240,12 @@
   }
   .status-label{ font-family:'Space Mono',monospace; font-size:12px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:0.04em; }
 
-  .booth.full{ filter:grayscale(0.75); opacity:.5; cursor:not-allowed; }
-  .booth.full::before{
-    content:'SOLD OUT'; position:absolute; top:16px; right:-32px;
-    background:var(--crimson); color:#fff; font-size:11px; font-weight:800;
-    letter-spacing:0.08em; padding:5px 40px; transform:rotate(28deg);
-    box-shadow:0 3px 10px rgba(0,0,0,0.3);
+  .mystery-card.full .mystery-front{ filter:grayscale(0.75); opacity:.5; }
+  .mystery-card.full .mystery-front::before{
+    content:'FULLY BOOKED'; position:absolute; top:17px; right:-36px;
+    background:var(--crimson); color:#fff; font-size:10px; font-weight:800;
+    letter-spacing:0.05em; padding:5px 38px; transform:rotate(28deg);
+    box-shadow:0 3px 10px rgba(0,0,0,0.3); z-index:1; white-space:nowrap;
   }
 
   /* ---------- Modal ---------- */
@@ -434,13 +463,51 @@
   };
 
   var EXAMINERS = [
-    { key:"fong",   name:"Dr. Fong",   slots:4, nickname:"The Steady Compass", icon:"🧭", accent:"#c9a15a" },
-    { key:"jaye",   name:"Dr. Jaye",   slots:4, nickname:"The Sharp Eye",      icon:"🦅", accent:"#8a9bd8" },
-    { key:"jovyn",  name:"Dr. Jovyn",  slots:5, nickname:"The Calm Current",   icon:"🌊", accent:"#5fae8c" },
-    { key:"nicole", name:"Dr. Nicole", slots:4, nickname:"The Bright Spark",   icon:"⚡",       accent:"#e0a34d" },
-    { key:"jem",    name:"Dr. Jem",    slots:4, nickname:"The Warm Anchor",    icon:"⚓",       accent:"#c0788f" },
-    { key:"xuan",   name:"Dr. Xuan",   slots:4, nickname:"The Quiet Focus",    icon:"🎯", accent:"#7fb0c9" }
+    { key:"fong",   name:"Dr. Fong",   slots:4, nickname:"The Steady Compass", icon:"🧭", accent:"#c9a15a",
+      features:["28 June", "巨蟹座", "UR创办人", "喜欢健身，钢琴"] },
+    { key:"jaye",   name:"Dr. Jaye",   slots:4, nickname:"The Sharp Eye",      icon:"🦅", accent:"#8a9bd8",
+      features:["26 May", "双子座", "aka UR爸爸", "最近很厉害制作好听的歌"] },
+    { key:"jovyn",  name:"Dr. Jovyn",  slots:5, nickname:"The Calm Current",   icon:"🌊", accent:"#5fae8c",
+      features:["2 May", "金牛座", "aka UR妈妈", "喜欢健身 / yoga", "FOL创办人"] },
+    { key:"nicole", name:"Dr. Nicole", slots:4, nickname:"The Bright Spark",   icon:"⚡",       accent:"#e0a34d",
+      features:["18 January", "摩羯座", "UR Podcast主持人", "喜欢米奇"] },
+    { key:"jem",    name:"Dr. Jem",    slots:4, nickname:"The Warm Anchor",    icon:"⚓",       accent:"#c0788f",
+      features:["24 September", "天秤座", "她是FOL & S&B主持人", "看戏，唱歌"] },
+    { key:"xuan",   name:"Dr. Xuan",   slots:4, nickname:"The Quiet Focus",    icon:"🎯", accent:"#7fb0c9",
+      features:["28 April", "金牛座", "他是FOL & S&B主持人", "喜欢组装的东西"] }
   ];
+
+  // Each candidate sees only ONE of an examiner's features on the mystery
+  // card front, drawn only from the features NOT already burned by an
+  // earlier successful booking (see state.usedFeatures, kept live from
+  // Firestore) — once a feature has actually been used to identify and
+  // book an examiner, it's retired for good so no later candidate can be
+  // tipped off by an earlier booker comparing notes. Each examiner's
+  // feature list is exactly as long as their slot count, so in the normal
+  // case every booking retires a different feature and the pool never
+  // runs dry before the slots do.
+  //
+  // Within the remaining pool, the pick is still deterministic per
+  // (candidate, examiner) pair — stable across refreshes — and staggered
+  // with a per-examiner offset so it round-robins evenly across everyone
+  // still choosing, instead of everyone landing on the same feature.
+  function remainingFeatures(examiner){
+    var used = (state.usedFeatures && state.usedFeatures[examiner.key]) || {};
+    var all = examiner.features || [];
+    var remaining = all.filter(function(f){ return !used[f]; });
+    // Fallback only if something got out of sync (e.g. rules not yet
+    // published so retiring silently failed) — never show a blank card.
+    return remaining.length ? remaining : all;
+  }
+  function featureFor(candidateCode, examiner){
+    var feats = remainingFeatures(examiner);
+    if(!feats.length) return "";
+    var ci = CANDIDATES.indexOf(candidateCode);
+    if(ci < 0) ci = 0;
+    var offset = 0;
+    for(var i = 0; i < examiner.key.length; i++){ offset += examiner.key.charCodeAt(i); }
+    return feats[(ci + offset) % feats.length];
+  }
 
   var TOTAL_SLOTS = EXAMINERS.reduce(function(a,e){return a+e.slots;},0);
 
@@ -462,6 +529,8 @@
     counts: {},                // examinerKey -> number booked (from the sheet)
     countsLoaded: false,
     bookedSet: {},              // candidate code -> true, kept live so the picker can gray out taken names
+    usedFeatures: {},           // examinerKey -> {feature: true, ...} — features already shown to someone
+                                 // who went on to book that examiner, so they're never shown again
     netError: "",
     myRecord: null,            // {candidate, examinerKey, examinerName, examinerNickname, timestamp}
     currentCandidate: null,    // original code string
@@ -469,7 +538,9 @@
     codeInputValue: "",        // what's currently typed in the "enter your code" box
     codeError: "",
     pendingConfirmCandidate: null, // a matched code awaiting the "is this you?" confirmation
-    confirmExaminer: null,     // examiner object mid-confirmation
+    mysteryOrder: null,        // shuffled array of examiner keys for this candidate's card layout
+    shakingKey: null,          // examiner key currently doing the pre-flip "shake the box" wobble
+    flippingKey: null,         // examiner key of the card currently flipped/booking, if any
     booking: false,
     bookingError: "",
     adminError: "",
@@ -485,6 +556,24 @@
     var n = 0;
     for(var k in state.counts){ n += state.counts[k]; }
     return n;
+  }
+
+  function shuffleArr(arr){
+    var a = arr.slice();
+    for(var i = a.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  // Enter the mystery-card screen with a fresh shuffled card layout — each
+  // candidate sees the 6 examiners in their own random order, so "card #3"
+  // doesn't mean the same thing between different people.
+  function enterPickExaminer(){
+    state.view = "pick-examiner";
+    state.shakingKey = null;
+    state.flippingKey = null;
+    state.mysteryOrder = shuffleArr(EXAMINERS.map(function(e){ return e.key; }));
   }
 
   /* ============== BACKEND (Firebase Firestore) ============== */
@@ -551,6 +640,14 @@
         state.bookedSet = booked;
         render();
       }, function(){ /* non-fatal: picker just won't gray out live; booking itself still works */ });
+      // Live "features already burned by a real booking" set, keyed by
+      // examiner — see remainingFeatures()/featureFor() above.
+      fsDb.collection("usedFeatures").onSnapshot(function(snap){
+        var used = {};
+        snap.forEach(function(doc){ used[doc.id] = doc.data() || {}; });
+        state.usedFeatures = used;
+        render();
+      }, function(){ /* non-fatal: worst case a feature could rarely repeat */ });
     }catch(e){
       state.netError = "Firebase 初始化失败，请检查 FIREBASE_CONFIG 是否填对。";
       render();
@@ -567,7 +664,7 @@
     });
   }
 
-  function firestoreBook(candidate, examiner){
+  function firestoreBook(candidate, examiner, featureShown){
     var bookingRef = fsDb.collection("bookings").doc(slugify(candidate));
     var counterRef = fsDb.collection("counters").doc(examiner.key);
     return fsDb.runTransaction(function(tx){
@@ -585,6 +682,7 @@
             examinerKey: examiner.key,
             examinerName: examiner.name,
             examinerNickname: examiner.nickname,
+            featureShown: featureShown || "",
             timestamp: new Date().toISOString()
           };
           tx.set(bookingRef, record);
@@ -592,15 +690,33 @@
           return { ok: true, record: record };
         });
       });
+    }).then(function(res){
+      // Retire the feature the candidate actually saw — deliberately a
+      // separate, best-effort write OUTSIDE the transaction above. This
+      // is a nice-to-have anti-leak touch, not core booking correctness:
+      // if it fails (e.g. firestore.rules hasn't been republished yet
+      // with the "usedFeatures" collection added), the real booking must
+      // still stand, never get rolled back or retried because of this.
+      if(res && res.ok && res.record && res.record.featureShown){
+        try{
+          var patch = {};
+          patch[res.record.featureShown] = true;
+          fsDb.collection("usedFeatures").doc(examiner.key).set(patch, { merge: true }).catch(function(){});
+        }catch(e){ /* decorative only — ignore */ }
+      }
+      return res;
     });
   }
 
   function adminReset(candidate){
     var bookingRef = fsDb.collection("bookings").doc(slugify(candidate));
+    var releasedFeature = null, releasedExaminerKey = null;
     return fsDb.runTransaction(function(tx){
       return tx.get(bookingRef).then(function(bookingSnap){
         if(!bookingSnap.exists){ return { removed: false }; }
         var data = bookingSnap.data();
+        releasedFeature = data.featureShown;
+        releasedExaminerKey = data.examinerKey;
         var counterRef = fsDb.collection("counters").doc(data.examinerKey);
         return tx.get(counterRef).then(function(counterSnap){
           var taken = (counterSnap.exists && counterSnap.data().taken) || 0;
@@ -609,6 +725,18 @@
           return { removed: true };
         });
       });
+    }).then(function(res){
+      // Free the retired feature back into the pool now that this
+      // booking no longer exists — again a separate best-effort write so
+      // a hiccup here never blocks HR's reset action itself.
+      if(res && res.removed && releasedFeature && releasedExaminerKey){
+        try{
+          var patch = {};
+          patch[releasedFeature] = firebase.firestore.FieldValue.delete();
+          fsDb.collection("usedFeatures").doc(releasedExaminerKey).set(patch, { merge: true }).catch(function(){});
+        }catch(e){ /* decorative only — ignore */ }
+      }
+      return res;
     });
   }
 
@@ -674,47 +802,126 @@
     }catch(e){ /* audio not available — booking still succeeded */ }
   }
 
-  function attemptBooking(candidate, examiner){
+  // A short, brand-toned confetti burst for the moment a mystery card
+  // flips open. Runs on a <canvas> appended straight to <body> (outside
+  // #root) so the periodic render() re-draws of the app never wipe it
+  // mid-animation; it removes itself when done.
+  function fireConfetti(){
+    try{
+      var W = window.innerWidth, H = window.innerHeight;
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      var canvas = document.createElement('canvas');
+      canvas.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9999;';
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      document.body.appendChild(canvas);
+      var ctx = canvas.getContext('2d');
+      if(!ctx){ canvas.remove(); return; }
+      ctx.scale(dpr, dpr);
+
+      // Warm gold / jade / crimson / cream — matches the page's own
+      // palette instead of generic rainbow confetti.
+      var colors = ['#a8783a', '#c4954f', '#3f8467', '#b23a4c', '#e8d4a8'];
+      var count = window.innerWidth < 480 ? 60 : 100;
+      var originX = W / 2, originY = H * 0.3;
+      var pieces = [];
+      for(var i = 0; i < count; i++){
+        var angle = Math.random() * Math.PI * 2;
+        var speed = 2.5 + Math.random() * 5;
+        pieces.push({
+          x: originX, y: originY,
+          vx: Math.cos(angle) * speed * (0.4 + Math.random() * 0.6),
+          vy: Math.sin(angle) * speed - 3,
+          size: 4 + Math.random() * 5,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rot: Math.random() * Math.PI * 2,
+          vrot: (Math.random() - 0.5) * 0.35,
+          shape: Math.random() < 0.5 ? 'rect' : 'circle'
+        });
+      }
+      var gravity = 0.16, drag = 0.985, duration = 2000, start = null;
+
+      function frame(ts){
+        if(!start) start = ts;
+        var elapsed = ts - start;
+        ctx.clearRect(0, 0, W, H);
+        var fade = Math.max(0, 1 - elapsed / duration);
+        pieces.forEach(function(p){
+          p.vx *= drag;
+          p.vy = p.vy * drag + gravity;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.rot += p.vrot;
+          ctx.save();
+          ctx.globalAlpha = fade;
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rot);
+          ctx.fillStyle = p.color;
+          if(p.shape === 'rect'){
+            ctx.fillRect(-p.size / 2, -p.size / 3, p.size, p.size * 0.6);
+          } else {
+            ctx.beginPath();
+            ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        });
+        if(elapsed < duration){
+          requestAnimationFrame(frame);
+        } else {
+          canvas.remove();
+        }
+      }
+      requestAnimationFrame(frame);
+    }catch(e){ /* confetti is decorative — never let it block a booking */ }
+  }
+
+  function attemptBooking(candidate, examiner, featureShown){
     if(!backendReady()){
+      state.shakingKey = null;
+      state.flippingKey = null;
       state.bookingError = "后台还没接好（Firebase 还没设置），请联系 HR。";
       render();
       return;
     }
     state.booking = true; state.bookingError = ""; render();
 
-    firestoreBook(candidate, examiner).then(function(res){
+    firestoreBook(candidate, examiner, featureShown).then(function(res){
       state.booking = false;
       if(!res){
+        state.shakingKey = null;
+        state.flippingKey = null;
         state.bookingError = "预订失败，请重试。";
         render();
         return;
       }
       if(res.alreadyBooked){
         state.myRecord = res.record;
-        state.confirmExaminer = null;
         state.view = "ticket";
         render();
         return;
       }
       if(res.ok){
         state.myRecord = res.record;
-        state.confirmExaminer = null;
         state.view = "ticket";
         render();
         playSuccessChime();
         return;
       }
       if(res.full){
-        state.bookingError = "抱歉，这位 Examiner 的名额刚刚满了，请选择其他 Examiner。";
-        state.confirmExaminer = null;
-        state.view = "pick-examiner";
+        state.bookingError = "抱歉，这位 Examiner 的名额刚刚满了，请翻开另一张卡吧。";
+        enterPickExaminer();
         render();
         return;
       }
-      state.bookingError = "系统正忙，请再点一次“确认选择”重试。";
+      state.shakingKey = null;
+      state.flippingKey = null;
+      state.bookingError = "系统正忙，请再翻一次卡重试。";
       render();
     }).catch(function(){
       state.booking = false;
+      state.shakingKey = null;
+      state.flippingKey = null;
       state.bookingError = "网络出错了，请检查网络后重试。";
       render();
     });
@@ -842,46 +1049,46 @@
   }
 
   function pickExaminerView(){
-    var boxes = EXAMINERS.map(function(ex){
+    if(!state.mysteryOrder){
+      state.mysteryOrder = shuffleArr(EXAMINERS.map(function(e){ return e.key; }));
+    }
+    var ordered = state.mysteryOrder.map(examinerByKey).filter(Boolean);
+    var anyBusy = !!(state.flippingKey || state.shakingKey);
+
+    var boxes = ordered.map(function(ex){
       var taken = countFor(ex.key);
       var left = ex.slots - taken;
       var full = left <= 0;
-      return '<button class="booth' + (full ? ' full' : '') + '" style="--booth-accent:' + ex.accent + '" ' +
-        (full ? 'disabled' : 'data-action="ask-examiner" data-key="' + ex.key + '"') + '>' +
-        '<span class="icon">' + ex.icon + '</span>' +
-        '<div class="nickname">' + esc(ex.name) + '</div>' +
-        '<div class="seat-row"><span class="status-light' + (full ? '' : ' on') + '"></span><span class="status-label">' + (full ? '已满' : '可预订') + '</span></div>' +
+      var shaking = state.shakingKey === ex.key;
+      var flipped = state.flippingKey === ex.key;
+      var cls = "mystery-card" + (full ? " full" : "") + (shaking ? " shaking" : "") + (flipped ? " flipped" : "");
+      var clickable = !full && !anyBusy;
+      return '<button class="' + cls + '" style="--booth-accent:' + ex.accent + '" data-key="' + ex.key + '" ' +
+        (clickable ? 'data-action="ask-examiner"' : 'disabled') + '>' +
+        '<span class="mystery-inner">' +
+          '<span class="mystery-face mystery-front">' +
+            '<span class="icon">❓</span>' +
+            '<span class="hint">' + esc(featureFor(state.currentCandidate, ex)) + '</span>' +
+            '<span class="seat-row"><span class="status-light' + (full ? '' : ' on') + '"></span><span class="status-label">' + (full ? '已满' : '可预订') + '</span></span>' +
+          '</span>' +
+          '<span class="mystery-face mystery-back">' +
+            '<span class="icon">' + ex.icon + '</span>' +
+            '<span class="nickname">' + esc(ex.name) + '</span>' +
+            (flipped ? '<span class="flip-status">' + (state.bookingError ? '预订失败' : '预订中...') + '</span>' : '') +
+          '</span>' +
+        '</span>' +
       '</button>';
     }).join('');
-
-    var confirmModal = '';
-    if(state.confirmExaminer){
-      var ex = state.confirmExaminer;
-      confirmModal = '' +
-        '<div class="modal-back">' +
-          '<div class="modal" data-stop="1">' +
-            '<div class="icon">' + ex.icon + '</div>' +
-            '<h3 class="display">确认预订 ' + esc(ex.name) + '？</h3>' +
-            '<p>一旦确认，将无法自行修改，如需调整请联系 HR。' +
-              (state.bookingError ? '<br><span style="color:var(--crimson);font-weight:700;">' + esc(state.bookingError) + '</span>' : '') +
-            '</p>' +
-            '<div class="modal-actions">' +
-              '<button class="btn-secondary" data-action="close-modal" ' + (state.booking?'disabled':'') + '>再想想</button>' +
-              '<button class="btn-primary" data-action="confirm-booking" ' + (state.booking?'disabled':'') + '>' + (state.booking ? '预订中...' : '确认选择') + '</button>' +
-            '</div>' +
-          '</div>' +
-        '</div>';
-    }
 
     return '' +
       '<div class="panel">' +
         '<div class="panel-head">' +
-          '<div><h2 class="display">' + esc(FULL_NAMES[state.currentCandidate] || state.currentCandidate || '') + ' ，选一位 Examiner 吧</h2><p>名额满了会变暗，无法再选择。</p></div>' +
-          '<button class="back-link" data-action="go-pick-candidate">← 换一个代号</button>' +
+          '<div><h2 class="display">' + esc(FULL_NAMES[state.currentCandidate] || state.currentCandidate || '') + ' ，翻开一张卡，看看是哪位 Examiner 吧</h2><p>卡片顺序是随机打乱的，翻开就直接算预订成功，请谨慎选择。</p></div>' +
+          '<button class="back-link" data-action="go-pick-candidate" ' + (anyBusy ? 'disabled' : '') + '>← 换一个代号</button>' +
         '</div>' +
-        '<div class="booth-grid">' + boxes + '</div>' +
-      '</div>' +
-      confirmModal;
+        (state.bookingError ? '<p style="color:var(--crimson);font-weight:700;font-size:13px;margin:0 0 16px;">' + esc(state.bookingError) + '</p>' : '') +
+        '<div class="mystery-grid">' + boxes + '</div>' +
+      '</div>';
   }
 
   function ticketView(){
@@ -1016,12 +1223,6 @@
       });
     }
 
-    var modalBack = root.querySelector('.modal-back');
-    if(modalBack){
-      modalBack.addEventListener('click', function(ev){
-        if(ev.target === modalBack){ state.confirmExaminer = null; state.bookingError=""; render(); }
-      });
-    }
   }
 
   function renderKeepFocus(inputEl){
@@ -1083,7 +1284,7 @@
       if(!backendReady()){
         state.checkingMine = false;
         state.pendingConfirmCandidate = null;
-        state.view = "pick-examiner";
+        enterPickExaminer();
         render();
         return;
       }
@@ -1094,30 +1295,44 @@
           state.myRecord = res.record;
           state.view = "ticket";
         } else {
-          state.view = "pick-examiner";
+          enterPickExaminer();
         }
         render();
       }).catch(function(){
         state.checkingMine = false;
         state.pendingConfirmCandidate = null;
-        state.view = "pick-examiner"; // fail open — worst case they try to book and the server catches a dupe
+        enterPickExaminer(); // fail open — worst case they try to book and the server catches a dupe
         render();
       });
       return;
     }
 
     if(action === "ask-examiner"){
+      if(state.shakingKey || state.flippingKey || state.booking) return; // one card at a time
       var key = el.getAttribute('data-key');
-      state.confirmExaminer = examinerByKey(key);
+      var examiner = examinerByKey(key);
+      if(!examiner || !state.currentCandidate) return;
+      var candidateForBooking = state.currentCandidate;
+      // Capture exactly the feature this candidate is looking at right now,
+      // before anything else can shift the remaining pool — this is the
+      // one that gets retired if the booking goes through.
+      var featureShown = featureFor(candidateForBooking, examiner);
+      state.shakingKey = key;
       state.bookingError = "";
       render();
-      return;
-    }
-    if(action === "close-modal"){ state.confirmExaminer = null; state.bookingError=""; render(); return; }
-    if(action === "confirm-booking"){
-      if(state.confirmExaminer && state.currentCandidate){
-        attemptBooking(state.currentCandidate, state.confirmExaminer);
-      }
+      // Shake the box first, THEN flip it open — flipping the card IS the
+      // booking action, so the reveal should feel like the real moment of
+      // commitment, not a decorative delay.
+      setTimeout(function(){
+        if(state.shakingKey !== key) return; // candidate backed out / state moved on
+        state.shakingKey = null;
+        state.flippingKey = key;
+        render();
+        fireConfetti();
+        setTimeout(function(){
+          attemptBooking(candidateForBooking, examiner, featureShown);
+        }, 700);
+      }, 600);
       return;
     }
 
