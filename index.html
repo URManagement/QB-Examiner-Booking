@@ -580,35 +580,51 @@
   // displays it anywhere in the candidate-facing views — but HR should
   // know this isn't cryptographically hidden, only kept out of the UI.
   var ANSWERS = [
-    { id:"a01", text:"成为团队的榜样", examinerKey:"xuan" },
-    { id:"a02", text:"帮助更多顾客改变", examinerKey:"jovyn" },
-    { id:"a03", text:"突破自己过去的纪录", examinerKey:"jem" },
-    { id:"a04", text:"成为更专业的人", examinerKey:"jovyn" },
-    { id:"a05", text:"带领别人成功", examinerKey:"jem" },
-    { id:"a06", text:"找到工作的使命感", examinerKey:"xuan" },
-    { id:"a07", text:"让家人为我感到骄傲", examinerKey:"fong" },
-    { id:"a08", text:"成为顾客最信任的人", examinerKey:"fong" },
-    { id:"a09", text:"做出自己最满意的成绩", examinerKey:"jovyn" },
-    { id:"a10", text:"让自己的价值被看见", examinerKey:"jovyn" },
-    { id:"a11", text:"培养更多接班人", examinerKey:"jaye" },
-    { id:"a12", text:"成为更有影响力的人", examinerKey:"jem" },
-    { id:"a13", text:"学会带团队", examinerKey:"jaye" },
-    { id:"a14", text:"把一件事情做到极致", examinerKey:"fong" },
-    { id:"a15", text:"让身边的人因为我而变得更好", examinerKey:"nicole" },
-    { id:"a16", text:"成为解决问题的人", examinerKey:"fong" },
-    { id:"a17", text:"让工作成为一种热爱", examinerKey:"nicole" },
-    { id:"a18", text:"成为公司不可或缺的人", examinerKey:"jovyn" },
-    { id:"a19", text:"创造属于自己的代表作", examinerKey:"nicole" },
-    { id:"a20", text:"活出自己想要的人生", examinerKey:"xuan" },
-    { id:"a21", text:"影响一个人的未来", examinerKey:"jem" },
-    { id:"a22", text:"成为更有智慧的人", examinerKey:"xuan" },
-    { id:"a23", text:"留下属于自己的贡献", examinerKey:"nicole" },
-    { id:"a24", text:"让梦想变成现实", examinerKey:"jaye" },
-    { id:"a25", text:"成为比昨天更好的自己", examinerKey:"jaye" }
+    { id:"a01", text:"成为团队的榜样", textEn:"Become a role model for the team", examinerKey:"xuan" },
+    { id:"a02", text:"帮助更多顾客改变", textEn:"Help more customers transform", examinerKey:"jovyn" },
+    { id:"a03", text:"突破自己过去的纪录", textEn:"Break my own past records", examinerKey:"jem" },
+    { id:"a04", text:"成为更专业的人", textEn:"Become a more professional person", examinerKey:"jovyn" },
+    { id:"a05", text:"带领别人成功", textEn:"Lead others to success", examinerKey:"jem" },
+    { id:"a06", text:"找到工作的使命感", textEn:"Find a sense of purpose in my work", examinerKey:"xuan" },
+    { id:"a07", text:"让家人为我感到骄傲", textEn:"Make my family proud of me", examinerKey:"fong" },
+    { id:"a08", text:"成为顾客最信任的人", textEn:"Become the person customers trust most", examinerKey:"fong" },
+    { id:"a09", text:"做出自己最满意的成绩", textEn:"Achieve results I'm truly proud of", examinerKey:"jovyn" },
+    { id:"a10", text:"让自己的价值被看见", textEn:"Let my value be seen", examinerKey:"jovyn" },
+    { id:"a11", text:"培养更多接班人", textEn:"Groom more successors", examinerKey:"jaye" },
+    { id:"a12", text:"成为更有影响力的人", textEn:"Become a more influential person", examinerKey:"jem" },
+    { id:"a13", text:"学会带团队", textEn:"Learn to lead a team", examinerKey:"jaye" },
+    { id:"a14", text:"把一件事情做到极致", textEn:"Master one thing to perfection", examinerKey:"fong" },
+    { id:"a15", text:"让身边的人因为我而变得更好", textEn:"Make the people around me better because of me", examinerKey:"nicole" },
+    { id:"a16", text:"成为解决问题的人", textEn:"Become a problem-solver", examinerKey:"fong" },
+    { id:"a17", text:"让工作成为一种热爱", textEn:"Turn my work into a passion", examinerKey:"nicole" },
+    { id:"a18", text:"成为公司不可或缺的人", textEn:"Become indispensable to the company", examinerKey:"jovyn" },
+    { id:"a19", text:"创造属于自己的代表作", textEn:"Create a signature achievement of my own", examinerKey:"nicole" },
+    { id:"a20", text:"活出自己想要的人生", textEn:"Live the life I truly want", examinerKey:"xuan" },
+    { id:"a21", text:"影响一个人的未来", textEn:"Change the course of someone's future", examinerKey:"jem" },
+    { id:"a22", text:"成为更有智慧的人", textEn:"Become a wiser person", examinerKey:"xuan" },
+    { id:"a23", text:"留下属于自己的贡献", textEn:"Leave behind a contribution that's truly mine", examinerKey:"nicole" },
+    { id:"a24", text:"让梦想变成现实", textEn:"Turn my dreams into reality", examinerKey:"jaye" },
+    { id:"a25", text:"成为比昨天更好的自己", textEn:"Become better than I was yesterday", examinerKey:"jaye" }
   ];
   function answerById(id){
     for(var i=0;i<ANSWERS.length;i++){ if(ANSWERS[i].id===id) return ANSWERS[i]; }
     return null;
+  }
+  // Picks the right-language copy of an answer statement — falls back to
+  // the Chinese original if, for some reason, no English text is set.
+  function answerText(a){
+    if(!a) return "";
+    return (state.lang === "en" && a.textEn) ? a.textEn : a.text;
+  }
+  // Booking records saved to Firestore always carry the Chinese text (it's
+  // what was current at the moment of booking) — so for display, look the
+  // answer back up by id and re-translate it live, rather than trusting
+  // whatever language happened to be stored. Falls back to the stored text
+  // if the id can't be found (shouldn't happen, but keeps old data safe).
+  function recAnswerText(rec){
+    if(!rec) return "";
+    var a = rec.answerId ? answerById(rec.answerId) : null;
+    return a ? answerText(a) : (rec.answerText || "");
   }
 
   // Small warm line-icons, one per answer card — picked purely to match
@@ -675,9 +691,197 @@
   }
   function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
 
+  /* ============== TRANSLATIONS ============== */
+  // Every static UI string lives here, keyed the same way in both
+  // languages, so a view function just calls t('someKey') and never has a
+  // language branch of its own. Chinese is the source of truth / fallback
+  // (t() drops back to STR.zh if a key is ever missing from STR.en) since
+  // that's the language this tool was originally built in and shown to
+  // candidates in by default.
+  var STR = {
+    zh: {
+      backToBooking: "← 返回预订页",
+      hrAdminLink: "🔒 HR 后台",
+      setupBanner: "⚠️ 还没接上 Firebase 后台（FIREBASE_CONFIG 还是占位文字）。这只是预览 — 照设置指南建好 Firebase 项目 + Firestore，把配置填进文件后，才能真正预订。",
+      introLine1: "恭喜入围",
+      landingH1: "选一句最贴近你的<em>答案</em>",
+      landingSub: "恭喜入围 Quarter 2 Bonus Exam！25 句话，每位候选人只能选一句，每句话也只能被选一次，先选先得。每句话背后都配对了一位 Examiner —— 但选的时候不会告诉你是谁，要到考试当天才会由 HR 揭晓。",
+      booked: "已预订",
+      startCta: "开始选 &nbsp;🎫",
+      confirmIdentityTitle: "确认身份",
+      confirmIdentityDesc: "请确认下面显示的是你自己的名字，再继续。",
+      back: "← 返回",
+      alreadyBookedNotice: "你已经选过答案了。确认后会直接看到当时选的那张票 —— 请务必确认这是你自己的名字，不要帮别人查看。",
+      confirmIdentityNotice: "一旦确认，就会用这个身份去选答案 —— 请确认这真的是你自己，不要帮别人操作。",
+      notMe: "不是我，重新选",
+      checking: "查询中…",
+      yesItsMe: "对，是我，继续",
+      pickNameTitle: "选择你的名字",
+      pickNameDesc: "找到自己的名字点一下，确认身份后才会进入选答案——千万别帮别人操作。",
+      searchName: "搜索姓名",
+      noNameFound: "没有找到符合的名字。",
+      nameDone: "已选好",
+      nameTapToPick: "点击选择",
+      answerNo: "第 {n} 题",
+      answerTaken: "已被选走",
+      answerAvailable: "可以选",
+      confirmAnswerTitle: "确定要选这个答案吗？",
+      confirmAnswerNotice: "选定之后就不能换了，答案背后配对的 Examiner 只有 HR 知道，会在考试当天才揭晓。请再确认一次。",
+      letMeThink: "再想想",
+      submitting: "提交中…",
+      yesPickIt: "对，就选它",
+      pickAnswerHeading: "{name} ，选一句最贴近你的答案吧",
+      pickAnswerDesc: "点了会先请你确认一次，确认后就直接算选定成功，无法再换。",
+      switchName: "← 换一个名字",
+      noBookingRecord: "找不到预订记录。",
+      backHome: "← 返回首页",
+      ticketConfirmed: "✓ 已选定",
+      ticketCandidate: "候选人",
+      ticketPickedAt: "选定时间",
+      ticketExamRound: "考试轮次",
+      ticketFooterNotice: "这句话背后配对的 Examiner 只有 HR 知道，会在考试当天揭晓 —— 截图保存这张票吧。如需更改，请直接联系 HR。",
+      hrAdminTitle: "HR 后台",
+      hrAdminDesc: "输入密码查看所有预订记录",
+      passwordPlaceholder: "密码",
+      enterAdmin: "进入后台",
+      wrongPassword: "密码错误，请重试。",
+      hrPanelTitle: "HR 后台面板",
+      loadingFirebase: "正在读取 Firebase…",
+      hrPanelDesc: "实时查看 25 位候选人选的答案，以及每句答案背后配对的 Examiner。",
+      hrPanelDataError: " 暂时读取不到数据，检查 FIREBASE_CONFIG / ADMIN_KEY 是否正确。",
+      adminSearchPlaceholder: "搜索姓名 / 代号 / employee code",
+      copied: "✓ 已复制",
+      copyCsv: "📋 复制为 CSV",
+      refresh: "🔄 刷新",
+      thName: "姓名 / employee code",
+      thStatus: "状态",
+      thAnswer: "选的答案",
+      thExaminer: "配对的 Examiner",
+      thTime: "选定时间",
+      pillBooked: "已选定",
+      pillWaiting: "待选",
+      resetBtn: "重置",
+      resetConfirm: "确认重置？",
+      resetting: "重置中…",
+      genCardBtn: "🎴 生成卡片",
+      generating: "生成中…",
+      genFailed: "生成失败，重试",
+      errBackendNotReady: "后台还没接好（Firebase 还没设置），请联系 HR。",
+      errBookingFailed: "预订失败，请重试。",
+      errAnswerTaken: "抱歉，这个答案刚被别人选走了，请选另一个吧。",
+      errSystemBusy: "系统正忙，请重试。",
+      errNetwork: "网络出错了，请检查网络后重试。",
+      errCantReachServer: "暂时连不上服务器，稍后会自动重试。",
+      errFirebaseInit: "Firebase 初始化失败，请检查 FIREBASE_CONFIG 是否填对。",
+      cardCandidateLabel: "候选人 · CANDIDATE",
+      cardYourExaminer: "你的 EXAMINER 是",
+      cardPickedAt: "选定时间 · "
+    },
+    en: {
+      backToBooking: "← Back to Booking",
+      hrAdminLink: "🔒 HR Admin",
+      setupBanner: "⚠️ Firebase isn't connected yet (FIREBASE_CONFIG is still placeholder text). This is preview only — follow the setup guide to create your Firebase project + Firestore and fill in the config before real bookings can be made.",
+      introLine1: "CONGRATULATIONS ON YOUR NOMINATION",
+      landingH1: "Choose the <em>answer</em> that feels most like you",
+      landingSub: "Congratulations on making it into the Quarter 2 Bonus Exam! There are 25 statements — each candidate picks exactly one, and each statement can only be picked once, first come first served. Every statement is secretly paired with one Examiner — you won't be told who until HR reveals it on exam day.",
+      booked: "Booked",
+      startCta: "Start Choosing &nbsp;🎫",
+      confirmIdentityTitle: "Confirm Identity",
+      confirmIdentityDesc: "Please confirm the name shown below is really yours before continuing.",
+      back: "← Back",
+      alreadyBookedNotice: "You've already picked an answer. Confirming will show the ticket from when you picked it — please make sure this is really your own name, and don't check on someone else's behalf.",
+      confirmIdentityNotice: "Once confirmed, you'll pick an answer under this identity — please make sure this is really you, and don't do this for someone else.",
+      notMe: "Not me, pick again",
+      checking: "Checking…",
+      yesItsMe: "Yes, this is me, continue",
+      pickNameTitle: "Choose Your Name",
+      pickNameDesc: "Find your own name and tap it. You'll only move on to picking an answer after confirming your identity — please never do this for someone else.",
+      searchName: "Search name",
+      noNameFound: "No matching name found.",
+      nameDone: "Done",
+      nameTapToPick: "Tap to select",
+      answerNo: "No. {n}",
+      answerTaken: "Taken",
+      answerAvailable: "Available",
+      confirmAnswerTitle: "Sure you want to pick this answer?",
+      confirmAnswerNotice: "Once picked, it cannot be changed. The Examiner paired with this answer is known only to HR, and will be revealed on exam day. Please confirm once more.",
+      letMeThink: "Let me think",
+      submitting: "Submitting…",
+      yesPickIt: "Yes, pick this one",
+      pickAnswerHeading: "{name}, choose the answer that feels most like you",
+      pickAnswerDesc: "Tapping one will ask you to confirm first — once confirmed, it's locked in and can't be changed.",
+      switchName: "← Switch name",
+      noBookingRecord: "No booking record found.",
+      backHome: "← Back to home",
+      ticketConfirmed: "✓ Confirmed",
+      ticketCandidate: "Candidate",
+      ticketPickedAt: "Picked At",
+      ticketExamRound: "Exam Round",
+      ticketFooterNotice: "The Examiner paired with this statement is known only to HR and will be revealed on exam day — take a screenshot to keep this ticket. Contact HR directly if you need any changes.",
+      hrAdminTitle: "HR Admin",
+      hrAdminDesc: "Enter the password to view all booking records",
+      passwordPlaceholder: "Password",
+      enterAdmin: "Enter Admin Panel",
+      wrongPassword: "Wrong password, please try again.",
+      hrPanelTitle: "HR Admin Panel",
+      loadingFirebase: "Loading from Firebase…",
+      hrPanelDesc: "Live view of all 25 candidates' picked answers and each answer's paired Examiner.",
+      hrPanelDataError: " Couldn't load data right now — check that FIREBASE_CONFIG / ADMIN_KEY are correct.",
+      adminSearchPlaceholder: "Search name / code / employee code",
+      copied: "✓ Copied",
+      copyCsv: "📋 Copy as CSV",
+      refresh: "🔄 Refresh",
+      thName: "Name / Employee Code",
+      thStatus: "Status",
+      thAnswer: "Picked Answer",
+      thExaminer: "Paired Examiner",
+      thTime: "Picked At",
+      pillBooked: "Booked",
+      pillWaiting: "Waiting",
+      resetBtn: "Reset",
+      resetConfirm: "Confirm reset?",
+      resetting: "Resetting…",
+      genCardBtn: "🎴 Generate Card",
+      generating: "Generating…",
+      genFailed: "Failed, retry",
+      errBackendNotReady: "Backend isn't connected yet (Firebase isn't set up) — please contact HR.",
+      errBookingFailed: "Booking failed, please try again.",
+      errAnswerTaken: "Sorry, this answer was just taken by someone else — please pick another one.",
+      errSystemBusy: "System busy, please try again.",
+      errNetwork: "Network error — please check your connection and try again.",
+      errCantReachServer: "Can't reach the server right now — it will retry automatically.",
+      errFirebaseInit: "Firebase failed to initialize — please check that FIREBASE_CONFIG is filled in correctly.",
+      cardCandidateLabel: "CANDIDATE",
+      cardYourExaminer: "YOUR EXAMINER IS",
+      cardPickedAt: "Picked at · "
+    }
+  };
+  // Looks up one UI string in the current language, falling back to
+  // Chinese (never to the raw key) if a translation is ever missing.
+  // `vars`, when given, fills in "{name}"-style placeholders.
+  function t(key, vars){
+    var dict = STR[state.lang] || STR.zh;
+    var s = (dict && dict[key] !== undefined) ? dict[key] : (STR.zh[key] !== undefined ? STR.zh[key] : key);
+    if(vars){
+      Object.keys(vars).forEach(function(k){ s = s.replace("{" + k + "}", vars[k]); });
+    }
+    return s;
+  }
+
   /* ============== STATE ============== */
+  // Remembered per-browser so a candidate who switches to English doesn't
+  // have to flip it again if she reloads mid-flow. Wrapped in try/catch —
+  // some browsers block localStorage on a file:// page, and the toggle
+  // should still work for that single visit even if it can't be saved.
+  var savedLang = "zh";
+  try{
+    var _sl = localStorage.getItem("examLang");
+    if(_sl === "en" || _sl === "zh") savedLang = _sl;
+  }catch(e){}
+
   var state = {
     view: "intro",             // intro | landing | pick-candidate | pick-answer | ticket | admin-lock | admin
+    lang: savedLang,           // "zh" | "en" — see STR / t() above
     bookedSet: {},              // candidate code -> true, kept live so the name picker can gray out taken names
     takenAnswerIds: {},         // answer id -> true, kept live so the answer grid can gray out taken answers
     netError: "",
@@ -758,12 +962,12 @@
         if(state.view === "intro") return;
         render();
       }, function(){
-        state.netError = "暂时连不上服务器，稍后会自动重试。";
+        state.netError = t('errCantReachServer');
         if(state.view === "intro") return;
         render();
       });
     }catch(e){
-      state.netError = "Firebase 初始化失败，请检查 FIREBASE_CONFIG 是否填对。";
+      state.netError = t('errFirebaseInit');
       render();
     }
   }
@@ -971,7 +1175,7 @@
   function attemptBooking(candidate, answer){
     if(!backendReady()){
       state.pendingAnswerId = null;
-      state.bookingError = "后台还没接好（Firebase 还没设置），请联系 HR。";
+      state.bookingError = t('errBackendNotReady');
       render();
       return;
     }
@@ -981,7 +1185,7 @@
       state.booking = false;
       if(!res){
         state.pendingAnswerId = null;
-        state.bookingError = "预订失败，请重试。";
+        state.bookingError = t('errBookingFailed');
         render();
         return;
       }
@@ -1000,18 +1204,18 @@
         return;
       }
       if(res.taken){
-        state.bookingError = "抱歉，这个答案刚被别人选走了，请选另一个吧。";
+        state.bookingError = t('errAnswerTaken');
         state.pendingAnswerId = null;
         render();
         return;
       }
       state.pendingAnswerId = null;
-      state.bookingError = "系统正忙，请重试。";
+      state.bookingError = t('errSystemBusy');
       render();
     }).catch(function(){
       state.booking = false;
       state.pendingAnswerId = null;
-      state.bookingError = "网络出错了，请检查网络后重试。";
+      state.bookingError = t('errNetwork');
       render();
     });
   }
@@ -1033,10 +1237,7 @@
   function setupBanner(){
     if(backendReady()) return "";
     return '' +
-      '<div class="setup-banner">' +
-        '⚠️ 还没接上 Firebase 后台（FIREBASE_CONFIG 还是占位文字）。这只是预览 — ' +
-        '照设置指南建好 Firebase 项目 + Firestore，把配置填进文件后，才能真正预订。' +
-      '</div>';
+      '<div class="setup-banner">' + t('setupBanner') + '</div>';
   }
 
   function pageFooter(){
@@ -1052,9 +1253,14 @@
           '<div class="mark">Q2</div>' +
           '<div class="name">Quarter Bonus Exam <b>&middot; Examiner Booking</b></div>' +
         '</div>' +
-        (state.view === "admin" || state.view === "admin-lock" ?
-          '<button class="admin-link" data-action="exit-admin">← 返回预订页</button>' :
-          '<button class="admin-link" data-action="open-admin">🔒 HR 后台</button>') +
+        '<div style="display:flex;align-items:center;gap:10px;">' +
+          '<button class="admin-link" data-action="toggle-lang" title="' + (state.lang === "zh" ? "Switch to English" : "切换回中文") + '">' +
+            (state.lang === "zh" ? "🌐 EN" : "🌐 中文") +
+          '</button>' +
+          (state.view === "admin" || state.view === "admin-lock" ?
+            '<button class="admin-link" data-action="exit-admin">' + t('backToBooking') + '</button>' :
+            '<button class="admin-link" data-action="open-admin">' + t('hrAdminLink') + '</button>') +
+        '</div>' +
       '</div>';
   }
 
@@ -1094,7 +1300,7 @@
         '<div class="eyebrow intro-eyebrow">Quarter 2 &middot; Bonus Assessment</div>' +
         '<div class="intro-divider"></div>' +
         '<h1 class="display intro-congrats">' +
-          '<span class="intro-line1">恭喜入围</span>' +
+          '<span class="intro-line1">' + t('introLine1') + '</span>' +
           '<span class="intro-line2">Quarter 2 Bonus Exam</span>' +
         '</h1>' +
       '</div>';
@@ -1107,13 +1313,13 @@
       '<div class="marquee">' +
         '<img class="hero-logo" src="' + UR_LOGO + '" alt="UR" />' +
         '<div class="eyebrow">Quarter 2 &middot; Bonus Assessment</div>' +
-        '<h1 class="display">选一句最贴近你的<em>答案</em></h1>' +
-        '<p class="sub">恭喜入围 Quarter 2 Bonus Exam！25 句话，每位候选人只能选一句，每句话也只能被选一次，先选先得。每句话背后都配对了一位 Examiner —— 但选的时候不会告诉你是谁，要到考试当天才会由 HR 揭晓。</p>' +
+        '<h1 class="display">' + t('landingH1') + '</h1>' +
+        '<p class="sub">' + t('landingSub') + '</p>' +
         '<div class="progress-wrap">' +
-          '<div class="progress-label"><span>已预订</span><span>' + totalBooked() + ' / ' + TOTAL_SLOTS + '</span></div>' +
+          '<div class="progress-label"><span>' + t('booked') + '</span><span>' + totalBooked() + ' / ' + TOTAL_SLOTS + '</span></div>' +
           '<div class="progress-track"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
         '</div>' +
-        '<button class="cta" data-action="start">开始选 &nbsp;🎫</button>' +
+        '<button class="cta" data-action="start">' + t('startCta') + '</button>' +
         '<div class="film-strip">' + Array(18).fill('<span></span>').join('') + '</div>' +
       '</div>';
   }
@@ -1131,18 +1337,16 @@
       return '' +
         '<div class="panel">' +
           '<div class="panel-head">' +
-            '<div><h2 class="display">确认身份</h2><p>请确认下面显示的是你自己的名字，再继续。</p></div>' +
-            '<button class="back-link" data-action="go-landing">← 返回</button>' +
+            '<div><h2 class="display">' + t('confirmIdentityTitle') + '</h2><p>' + t('confirmIdentityDesc') + '</p></div>' +
+            '<button class="back-link" data-action="go-landing">' + t('back') + '</button>' +
           '</div>' +
           '<div class="modal" style="margin:12px auto;max-width:420px;">' +
             '<div class="icon">🪪</div>' +
             '<h3 class="display">' + esc(FULL_NAMES[c] || c) + '</h3>' +
-            '<p>' + (alreadyBooked ?
-              '你已经选过答案了。确认后会直接看到当时选的那张票 —— 请务必确认这是你自己的名字，不要帮别人查看。' :
-              '一旦确认，就会用这个身份去选答案 —— 请确认这真的是你自己，不要帮别人操作。') + '</p>' +
+            '<p>' + (alreadyBooked ? t('alreadyBookedNotice') : t('confirmIdentityNotice')) + '</p>' +
             '<div class="modal-actions">' +
-              '<button class="btn-secondary" data-action="cancel-identity" ' + (busy?'disabled':'') + '>不是我，重新选</button>' +
-              '<button class="btn-primary" data-action="confirm-identity" ' + (busy?'disabled':'') + '>' + (busy ? '查询中…' : '对，是我，继续') + '</button>' +
+              '<button class="btn-secondary" data-action="cancel-identity" ' + (busy?'disabled':'') + '>' + t('notMe') + '</button>' +
+              '<button class="btn-primary" data-action="confirm-identity" ' + (busy?'disabled':'') + '>' + (busy ? t('checking') : t('yesItsMe')) + '</button>' +
             '</div>' +
           '</div>' +
         '</div>';
@@ -1160,18 +1364,18 @@
       return '<button class="stub' + (done ? ' done' : '') + '" data-action="pick-name" data-candidate="' + esc(c) + '">' +
         '<div class="icon-badge">' + ICONS.person + '</div>' +
         '<div class="code">' + esc(FULL_NAMES[c] || c) + '</div>' +
-        '<div class="tag' + (done ? ' booked' : '') + '">' + (done ? '已选好' : '点击选择') + '</div>' +
+        '<div class="tag' + (done ? ' booked' : '') + '">' + (done ? t('nameDone') : t('nameTapToPick')) + '</div>' +
       '</button>';
     }).join('');
 
     return '' +
       '<div class="panel">' +
         '<div class="panel-head">' +
-          '<div><h2 class="display">选择你的名字</h2><p>找到自己的名字点一下，确认身份后才会进入选答案——千万别帮别人操作。</p></div>' +
-          '<button class="back-link" data-action="go-landing">← 返回</button>' +
+          '<div><h2 class="display">' + t('pickNameTitle') + '</h2><p>' + t('pickNameDesc') + '</p></div>' +
+          '<button class="back-link" data-action="go-landing">' + t('back') + '</button>' +
         '</div>' +
-        '<input class="search" placeholder="搜索姓名" value="' + esc(state.nameSearch) + '" data-role="search-name" />' +
-        '<div class="stub-grid" style="margin-top:16px;">' + (stubs || '<p style="color:var(--muted);">没有找到符合的名字。</p>') + '</div>' +
+        '<input class="search" placeholder="' + t('searchName') + '" value="' + esc(state.nameSearch) + '" data-role="search-name" />' +
+        '<div class="stub-grid" style="margin-top:16px;">' + (stubs || '<p style="color:var(--muted);">' + t('noNameFound') + '</p>') + '</div>' +
       '</div>';
   }
 
@@ -1187,11 +1391,11 @@
         (clickable ? 'data-action="pick-answer"' : 'disabled') + '>' +
         '<span class="head-row">' +
           '<span class="icon-badge">' + icon + '</span>' +
-          '<span class="num">第 ' + (idx+1) + ' 题</span>' +
+          '<span class="num">' + t('answerNo', {n: idx+1}) + '</span>' +
         '</span>' +
-        '<span class="txt">「' + esc(a.text) + '」</span>' +
+        '<span class="txt">「' + esc(answerText(a)) + '」</span>' +
         '<span class="seat-row"><span class="status-light' + (taken ? '' : ' on') + '"></span>' +
-        '<span class="status-label">' + (taken ? '已被选走' : '可以选') + '</span></span>' +
+        '<span class="status-label">' + (taken ? t('answerTaken') : t('answerAvailable')) + '</span></span>' +
       '</button>';
     }).join('');
 
@@ -1203,12 +1407,12 @@
           '<div class="modal-back">' +
             '<div class="modal" data-stop="1">' +
               '<div class="icon-badge" style="margin:0 auto 14px;">' + (ANSWER_ICON[pendingAnswer.id] || '') + '</div>' +
-              '<h3 class="display">确定要选这个答案吗？</h3>' +
-              '<p style="font-family:\'Noto Serif SC\',\'Cormorant Garamond\',serif;font-weight:600;font-size:17px;">「' + esc(pendingAnswer.text) + '」</p>' +
-              '<p>选定之后就不能换了，答案背后配对的 Examiner 只有 HR 知道，会在考试当天才揭晓。请再确认一次。</p>' +
+              '<h3 class="display">' + t('confirmAnswerTitle') + '</h3>' +
+              '<p style="font-family:\'Noto Serif SC\',\'Cormorant Garamond\',serif;font-weight:600;font-size:17px;">「' + esc(answerText(pendingAnswer)) + '」</p>' +
+              '<p>' + t('confirmAnswerNotice') + '</p>' +
               '<div class="modal-actions">' +
-                '<button class="btn-secondary" data-action="cancel-answer-pick" ' + (state.booking?'disabled':'') + '>再想想</button>' +
-                '<button class="btn-primary" data-action="confirm-answer-pick" ' + (state.booking?'disabled':'') + '>' + (state.booking ? '提交中…' : '对，就选它') + '</button>' +
+                '<button class="btn-secondary" data-action="cancel-answer-pick" ' + (state.booking?'disabled':'') + '>' + t('letMeThink') + '</button>' +
+                '<button class="btn-primary" data-action="confirm-answer-pick" ' + (state.booking?'disabled':'') + '>' + (state.booking ? t('submitting') : t('yesPickIt')) + '</button>' +
               '</div>' +
             '</div>' +
           '</div>';
@@ -1218,8 +1422,8 @@
     return '' +
       '<div class="panel">' +
         '<div class="panel-head">' +
-          '<div><h2 class="display">' + esc(FULL_NAMES[state.currentCandidate] || state.currentCandidate || '') + ' ，选一句最贴近你的答案吧</h2><p>点了会先请你确认一次，确认后就直接算选定成功，无法再换。</p></div>' +
-          '<button class="back-link" data-action="go-pick-candidate" ' + (anyBusy ? 'disabled' : '') + '>← 换一个名字</button>' +
+          '<div><h2 class="display">' + t('pickAnswerHeading', {name: esc(FULL_NAMES[state.currentCandidate] || state.currentCandidate || '')}) + '</h2><p>' + t('pickAnswerDesc') + '</p></div>' +
+          '<button class="back-link" data-action="go-pick-candidate" ' + (anyBusy ? 'disabled' : '') + '>' + t('switchName') + '</button>' +
         '</div>' +
         (state.bookingError ? '<p style="color:var(--crimson);font-weight:700;font-size:13px;margin:0 0 16px;">' + esc(state.bookingError) + '</p>' : '') +
         '<div class="answer-grid">' + cards + '</div>' +
@@ -1230,37 +1434,37 @@
   function ticketView(){
     var rec = state.myRecord;
     if(!rec){
-      return '<div class="panel"><p style="text-align:center;color:var(--muted);">找不到预订记录。</p><div style="text-align:center;margin-top:16px;"><button class="back-link" data-action="go-landing">← 返回首页</button></div></div>';
+      return '<div class="panel"><p style="text-align:center;color:var(--muted);">' + t('noBookingRecord') + '</p><div style="text-align:center;margin-top:16px;"><button class="back-link" data-action="go-landing">' + t('backHome') + '</button></div></div>';
     }
     return '' +
       '<div class="ticket-wrap">' +
         '<div class="ticket">' +
           '<div class="ticket-top">' +
             (ANSWER_ICON[rec.answerId] ? '<div class="icon-badge" style="margin:0 auto 12px;">' + ANSWER_ICON[rec.answerId] + '</div>' : '') +
-            '<div class="stamp">✓ 已选定</div>' +
-            '<div class="exname">「' + esc(rec.answerText || '') + '」</div>' +
+            '<div class="stamp">' + t('ticketConfirmed') + '</div>' +
+            '<div class="exname">「' + esc(recAnswerText(rec)) + '」</div>' +
           '</div>' +
           '<div class="ticket-perf"></div>' +
           '<div class="ticket-bottom">' +
-            '<div class="ticket-field"><div class="k">候选人</div><div class="v">' + esc(FULL_NAMES[rec.candidate] || rec.candidate) + '</div></div>' +
-            '<div class="ticket-field"><div class="k">选定时间</div><div class="v">' + fmtTime(rec.timestamp) + '</div></div>' +
-            '<div class="ticket-field" style="grid-column:1/-1;"><div class="k">考试轮次</div><div class="v">Quarter 2 Bonus Exam</div></div>' +
+            '<div class="ticket-field"><div class="k">' + t('ticketCandidate') + '</div><div class="v">' + esc(FULL_NAMES[rec.candidate] || rec.candidate) + '</div></div>' +
+            '<div class="ticket-field"><div class="k">' + t('ticketPickedAt') + '</div><div class="v">' + fmtTime(rec.timestamp) + '</div></div>' +
+            '<div class="ticket-field" style="grid-column:1/-1;"><div class="k">' + t('ticketExamRound') + '</div><div class="v">Quarter 2 Bonus Exam</div></div>' +
           '</div>' +
         '</div>' +
       '</div>' +
-      '<p style="text-align:center;color:var(--muted);font-size:13px;max-width:400px;margin:22px auto 0;">这句话背后配对的 Examiner 只有 HR 知道，会在考试当天揭晓 —— 截图保存这张票吧。如需更改，请直接联系 HR。</p>' +
-      '<div style="text-align:center;margin-top:20px;"><button class="back-link" data-action="go-landing">← 返回首页</button></div>';
+      '<p style="text-align:center;color:var(--muted);font-size:13px;max-width:400px;margin:22px auto 0;">' + t('ticketFooterNotice') + '</p>' +
+      '<div style="text-align:center;margin-top:20px;"><button class="back-link" data-action="go-landing">' + t('backHome') + '</button></div>';
   }
 
   function adminLockView(){
     return '' +
       '<div class="panel lock-form">' +
         '<div class="icon">🔐</div>' +
-        '<h2 class="display" style="font-size:22px;margin:0 0 6px;">HR 后台</h2>' +
-        '<p style="color:var(--muted);font-size:13.5px;margin:0;">输入密码查看所有预订记录</p>' +
-        '<input class="pw-input" type="password" placeholder="密码" data-role="admin-pw" />' +
+        '<h2 class="display" style="font-size:22px;margin:0 0 6px;">' + t('hrAdminTitle') + '</h2>' +
+        '<p style="color:var(--muted);font-size:13.5px;margin:0;">' + t('hrAdminDesc') + '</p>' +
+        '<input class="pw-input" type="password" placeholder="' + t('passwordPlaceholder') + '" data-role="admin-pw" />' +
         '<div class="pw-error">' + esc(state.adminError) + '</div>' +
-        '<button class="cta" style="width:100%;justify-content:center;" data-action="submit-admin-pw">进入后台</button>' +
+        '<button class="cta" style="width:100%;justify-content:center;" data-action="submit-admin-pw">' + t('enterAdmin') + '</button>' +
       '</div>';
   }
 
@@ -1295,19 +1499,19 @@
         var ex = examinerByKey(rec.examinerKey) || {};
         return '<tr>' +
           nameCell +
-          '<td><span class="pill booked">已选定</span></td>' +
-          '<td style="font-family:\'Noto Serif SC\',serif;">「' + esc(rec.answerText || '') + '」</td>' +
+          '<td><span class="pill booked">' + t('pillBooked') + '</span></td>' +
+          '<td style="font-family:\'Noto Serif SC\',serif;">「' + esc(recAnswerText(rec)) + '」</td>' +
           '<td>' + (ex.icon||'') + ' ' + esc(rec.examinerName) + '</td>' +
           '<td class="mono">' + fmtTime(rec.timestamp) + '</td>' +
           '<td>' +
-            '<button class="tiny-btn" data-action="reset" data-candidate="' + esc(c) + '">重置</button>' +
-            '<button class="tiny-btn-gold" data-action="gen-card" data-candidate="' + esc(c) + '">🎴 生成卡片</button>' +
+            '<button class="tiny-btn" data-action="reset" data-candidate="' + esc(c) + '">' + t('resetBtn') + '</button>' +
+            '<button class="tiny-btn-gold" data-action="gen-card" data-candidate="' + esc(c) + '">' + t('genCardBtn') + '</button>' +
           '</td>' +
         '</tr>';
       }
       return '<tr>' +
         nameCell +
-        '<td><span class="pill waiting">待选</span></td>' +
+        '<td><span class="pill waiting">' + t('pillWaiting') + '</span></td>' +
         '<td style="color:var(--muted);">&mdash;</td>' +
         '<td style="color:var(--muted);">&mdash;</td>' +
         '<td style="color:var(--muted);">&mdash;</td>' +
@@ -1318,17 +1522,17 @@
     return '' +
       '<div class="panel">' +
         '<div class="panel-head">' +
-          '<div><h2 class="display"><span class="conn-dot"></span>HR 后台面板</h2><p>' + (state.adminLoading ? '正在读取 Firebase…' : ('实时查看 25 位候选人选的答案，以及每句答案背后配对的 Examiner。' + (state.adminLoaded ? '' : ' 暂时读取不到数据，检查 FIREBASE_CONFIG / ADMIN_KEY 是否正确。'))) + '</p></div>' +
+          '<div><h2 class="display"><span class="conn-dot"></span>' + t('hrPanelTitle') + '</h2><p>' + (state.adminLoading ? t('loadingFirebase') : (t('hrPanelDesc') + (state.adminLoaded ? '' : t('hrPanelDataError')))) + '</p></div>' +
         '</div>' +
         '<div class="stat-row">' + statCards + '</div>' +
         '<div class="toolbar">' +
-          '<input class="search" style="margin:0;flex:1;min-width:180px;" placeholder="搜索姓名 / 代号 / employee code" value="' + esc(state.adminSearch) + '" data-role="search-admin" />' +
-          '<button class="copy-btn" data-action="copy-csv">' + (state.copyFeedback ? '✓ 已复制' : '📋 复制为 CSV') + '</button>' +
-          '<button class="copy-btn" data-action="refresh-admin">🔄 刷新</button>' +
+          '<input class="search" style="margin:0;flex:1;min-width:180px;" placeholder="' + t('adminSearchPlaceholder') + '" value="' + esc(state.adminSearch) + '" data-role="search-admin" />' +
+          '<button class="copy-btn" data-action="copy-csv">' + (state.copyFeedback ? t('copied') : t('copyCsv')) + '</button>' +
+          '<button class="copy-btn" data-action="refresh-admin">' + t('refresh') + '</button>' +
         '</div>' +
         '<div class="table-scroll">' +
           '<table class="admin-table">' +
-            '<thead><tr><th>姓名 / employee code</th><th>状态</th><th>选的答案</th><th>配对的 Examiner</th><th>选定时间</th><th></th></tr></thead>' +
+            '<thead><tr><th>' + t('thName') + '</th><th>' + t('thStatus') + '</th><th>' + t('thAnswer') + '</th><th>' + t('thExaminer') + '</th><th>' + t('thTime') + '</th><th></th></tr></thead>' +
             '<tbody>' + rows + '</tbody>' +
           '</table>' +
         '</div>' +
@@ -1386,6 +1590,12 @@
   }
 
   function handleAction(action, el){
+    if(action === "toggle-lang"){
+      state.lang = state.lang === "zh" ? "en" : "zh";
+      try{ localStorage.setItem("examLang", state.lang); }catch(e){}
+      render();
+      return;
+    }
     if(action === "start"){ state.view = "pick-candidate"; render(); return; }
     if(action === "go-landing"){
       state.view = "landing"; state.currentCandidate=null;
@@ -1484,7 +1694,7 @@
         render();
         loadAdminData();
       } else {
-        state.adminError = "密码错误，请重试。";
+        state.adminError = t('wrongPassword');
         render();
       }
       return;
@@ -1494,12 +1704,12 @@
       var c2 = el.getAttribute('data-candidate');
       if(el.getAttribute('data-armed') !== '1'){
         el.setAttribute('data-armed','1');
-        el.textContent = '确认重置？';
-        setTimeout(function(){ if(el.isConnected){ el.setAttribute('data-armed','0'); el.textContent='重置'; } }, 3000);
+        el.textContent = t('resetConfirm');
+        setTimeout(function(){ if(el.isConnected){ el.setAttribute('data-armed','0'); el.textContent=t('resetBtn'); } }, 3000);
         return;
       }
       el.disabled = true;
-      el.textContent = '重置中…';
+      el.textContent = t('resetting');
       adminReset(c2).then(function(){ loadAdminData(); }).catch(function(){ loadAdminData(); });
       return;
     }
@@ -1512,7 +1722,7 @@
         var name3 = FULL_NAMES[c3] || "";
         var code3 = PRIVATE_CODES[c3] || "";
         if(rec){
-          var answerCsv = '"' + (rec.answerText||"").replace(/"/g,'""') + '"';
+          var answerCsv = '"' + recAnswerText(rec).replace(/"/g,'""') + '"';
           lines.push([c3, name3, code3, "Booked", answerCsv, rec.examinerName, rec.timestamp].join(","));
         }
         else { lines.push([c3, name3, code3, "Waiting", "", "", ""].join(",")); }
@@ -1528,13 +1738,13 @@
       var c4 = el.getAttribute('data-candidate');
       var origLabel = el.textContent;
       el.disabled = true;
-      el.textContent = '生成中…';
+      el.textContent = t('generating');
       generateExaminerCard(c4).then(function(){
         el.disabled = false;
         el.textContent = origLabel;
       }).catch(function(){
         el.disabled = false;
-        el.textContent = '生成失败，重试';
+        el.textContent = t('genFailed');
       });
       return;
     }
@@ -1660,7 +1870,7 @@
       }
 
       // Candidate
-      centerText("候选人 · CANDIDATE", 520, 24, "700", "'Manrope',sans-serif", "#a3906f");
+      centerText(t('cardCandidateLabel'), 520, 24, "700", "'Manrope',sans-serif", "#a3906f");
       var nameSize = fitSize(fullName, W - pad*2 - 100, 66, 34, "700", "'Noto Serif SC',serif");
       centerText(fullName, 585, nameSize, "700", "'Noto Serif SC',serif", "#ecdfc9");
       if(code) centerText(code, 625, 22, "500", "'Space Mono',monospace", "#a3906f");
@@ -1671,7 +1881,7 @@
       // warmer here than a generic icon, since HR is about to hold this
       // up (or send it) as the actual reveal moment for that candidate —
       // so we fall back to the emoji only if a photo failed to load.
-      centerText("你的 EXAMINER 是", 750, 26, "700", "'Manrope',sans-serif", "#a3906f");
+      centerText(t('cardYourExaminer'), 750, 26, "700", "'Manrope',sans-serif", "#a3906f");
       var pcx = cx, pcy = 905, prad = 130;
       g.save();
       g.shadowColor = "rgba(211,165,104,0.5)";
@@ -1726,7 +1936,7 @@
       if(ex.nickname) centerText(ex.nickname, 1144, 24, "500", "'Cormorant Garamond',serif", "#cdb794");
 
       drawDivider(g, cx, 1205, 200);
-      if(rec.timestamp) centerText("选定时间 · " + fmtTime(rec.timestamp), 1256, 21, "500", "'Space Mono',monospace", "#786646");
+      if(rec.timestamp) centerText(t('cardPickedAt') + fmtTime(rec.timestamp), 1256, 21, "500", "'Space Mono',monospace", "#786646");
       drawDots(g, cx, 1320, 260, 3);
 
       // Footer
