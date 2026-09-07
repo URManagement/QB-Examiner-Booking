@@ -170,10 +170,19 @@
     font-size:12px; letter-spacing:0.22em; text-transform:uppercase;
     color:var(--gold); font-weight:700; margin-bottom:16px;
   }
-  .marquee h1{
-    font-size:clamp(32px,5.4vw,54px); margin:0 0 14px; line-height:1.08; font-weight:800;
+  .theme-stem{
+    display:block; margin:0 0 16px;
+    font-family:'Playfair Display','Noto Serif SC',serif; font-weight:800;
+    font-size:clamp(30px,5.2vw,50px); line-height:1.14; color:var(--ink);
   }
-  .marquee h1 em{ color:var(--gold); font-style:normal; }
+  .theme-stem .stem-quote{ color:var(--gold-bright); }
+  .marquee h1{
+    display:inline-flex; align-items:center; gap:8px; margin:0 0 20px;
+    font-family:'Noto Serif SC','Cormorant Garamond',serif; font-weight:600;
+    font-size:clamp(15px,2vw,18px); line-height:1.35; color:var(--ink-dim);
+    padding:9px 20px; border:1px solid var(--line); border-radius:100px;
+  }
+  .marquee h1 em{ color:var(--gold); font-style:normal; font-weight:700; }
   .marquee p.sub{ color:var(--ink-dim); font-size:16px; max-width:520px; margin:0 auto 30px; line-height:1.6; }
 
   .progress-wrap{ max-width:440px; margin:0 auto 34px; }
@@ -214,6 +223,22 @@
     padding:8px 14px; border-radius:100px; display:inline-flex; align-items:center; gap:6px;
   }
   .back-link:hover{ color:var(--ink); border-color:var(--gold); }
+
+  .question-banner{
+    display:flex; align-items:baseline; flex-wrap:wrap; gap:10px 14px;
+    margin:0 0 20px; padding:14px 18px;
+    background:linear-gradient(135deg, rgba(var(--gold-rgb),0.10), rgba(var(--gold-rgb),0.03));
+    border:1px solid rgba(var(--gold-rgb),0.35); border-left:3px solid var(--gold);
+    border-radius:10px;
+  }
+  .question-banner .q-label{
+    font-size:11px; font-weight:800; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--gold); flex-shrink:0;
+  }
+  .question-banner .q-stem{
+    font-family:'Noto Serif SC','Cormorant Garamond',serif; font-weight:600;
+    font-size:16px; color:var(--ink);
+  }
 
   .search{
     width:100%; padding:13px 16px; border-radius:12px; border:1px solid var(--line);
@@ -626,6 +651,15 @@
     var a = rec.answerId ? answerById(rec.answerId) : null;
     return a ? answerText(a) : (rec.answerText || "");
   }
+  // The 25 cards only ever show the completion half of a sentence (e.g.
+  // "Become a role model for the team") — on its own that reads like a
+  // stray fragment, because the actual question ("The next goal I want to
+  // achieve is…") is never shown next to it. These two helpers glue the
+  // question stem back onto an answer for the few places that need the
+  // whole sentence to read naturally: the final "sure you want to pick
+  // this?" confirmation, the booked ticket, and HR's admin table.
+  function fullSentence(a){ return t('questionStem') + answerText(a); }
+  function recFullSentence(rec){ return t('questionStem') + recAnswerText(rec); }
 
   // Small warm line-icons, one per answer card — picked purely to match
   // the FEELING of that answer's own words (a star for "be a role model",
@@ -706,6 +740,8 @@
       introLine1: "恭喜入围",
       landingH1: "选一句最贴近你的<em>答案</em>",
       landingSub: "恭喜入围 Quarter 2 Bonus Exam！25 句话，每位候选人只能选一句，每句话也只能被选一次，先选先得。每句话背后都配对了一位 Examiner —— 但选的时候不会告诉你是谁，要到考试当天才会由 HR 揭晓。",
+      questionLabel: "题目",
+      questionStem: "我下一个想实现的目标是……",
       booked: "已预订",
       startCta: "开始选 &nbsp;🎫",
       confirmIdentityTitle: "确认身份",
@@ -784,6 +820,8 @@
       introLine1: "CONGRATULATIONS ON YOUR NOMINATION",
       landingH1: "Choose the <em>answer</em> that feels most like you",
       landingSub: "Congratulations on making it into the Quarter 2 Bonus Exam! There are 25 statements — each candidate picks exactly one, and each statement can only be picked once, first come first served. Every statement is secretly paired with one Examiner — you won't be told who until HR reveals it on exam day.",
+      questionLabel: "QUESTION",
+      questionStem: "The next goal I want to achieve is…",
       booked: "Booked",
       startCta: "Start Choosing &nbsp;🎫",
       confirmIdentityTitle: "Confirm Identity",
@@ -1313,6 +1351,7 @@
       '<div class="marquee">' +
         '<img class="hero-logo" src="' + UR_LOGO + '" alt="UR" />' +
         '<div class="eyebrow">Quarter 2 &middot; Bonus Assessment</div>' +
+        '<div class="theme-stem"><span class="stem-quote">「</span>' + esc(t('questionStem')) + '<span class="stem-quote">」</span></div>' +
         '<h1 class="display">' + t('landingH1') + '</h1>' +
         '<p class="sub">' + t('landingSub') + '</p>' +
         '<div class="progress-wrap">' +
@@ -1408,7 +1447,7 @@
             '<div class="modal" data-stop="1">' +
               '<div class="icon-badge" style="margin:0 auto 14px;">' + (ANSWER_ICON[pendingAnswer.id] || '') + '</div>' +
               '<h3 class="display">' + t('confirmAnswerTitle') + '</h3>' +
-              '<p style="font-family:\'Noto Serif SC\',\'Cormorant Garamond\',serif;font-weight:600;font-size:17px;">「' + esc(answerText(pendingAnswer)) + '」</p>' +
+              '<p style="font-family:\'Noto Serif SC\',\'Cormorant Garamond\',serif;font-weight:600;font-size:17px;">「' + esc(fullSentence(pendingAnswer)) + '」</p>' +
               '<p>' + t('confirmAnswerNotice') + '</p>' +
               '<div class="modal-actions">' +
                 '<button class="btn-secondary" data-action="cancel-answer-pick" ' + (state.booking?'disabled':'') + '>' + t('letMeThink') + '</button>' +
@@ -1424,6 +1463,10 @@
         '<div class="panel-head">' +
           '<div><h2 class="display">' + t('pickAnswerHeading', {name: esc(FULL_NAMES[state.currentCandidate] || state.currentCandidate || '')}) + '</h2><p>' + t('pickAnswerDesc') + '</p></div>' +
           '<button class="back-link" data-action="go-pick-candidate" ' + (anyBusy ? 'disabled' : '') + '>' + t('switchName') + '</button>' +
+        '</div>' +
+        '<div class="question-banner">' +
+          '<span class="q-label">' + t('questionLabel') + '</span>' +
+          '<span class="q-stem">' + esc(t('questionStem')) + '</span>' +
         '</div>' +
         (state.bookingError ? '<p style="color:var(--crimson);font-weight:700;font-size:13px;margin:0 0 16px;">' + esc(state.bookingError) + '</p>' : '') +
         '<div class="answer-grid">' + cards + '</div>' +
@@ -1442,7 +1485,7 @@
           '<div class="ticket-top">' +
             (ANSWER_ICON[rec.answerId] ? '<div class="icon-badge" style="margin:0 auto 12px;">' + ANSWER_ICON[rec.answerId] + '</div>' : '') +
             '<div class="stamp">' + t('ticketConfirmed') + '</div>' +
-            '<div class="exname">「' + esc(recAnswerText(rec)) + '」</div>' +
+            '<div class="exname">「' + esc(recFullSentence(rec)) + '」</div>' +
           '</div>' +
           '<div class="ticket-perf"></div>' +
           '<div class="ticket-bottom">' +
@@ -1500,7 +1543,7 @@
         return '<tr>' +
           nameCell +
           '<td><span class="pill booked">' + t('pillBooked') + '</span></td>' +
-          '<td style="font-family:\'Noto Serif SC\',serif;">「' + esc(recAnswerText(rec)) + '」</td>' +
+          '<td style="font-family:\'Noto Serif SC\',serif;white-space:normal;min-width:220px;max-width:340px;">「' + esc(recFullSentence(rec)) + '」</td>' +
           '<td>' + (ex.icon||'') + ' ' + esc(rec.examinerName) + '</td>' +
           '<td class="mono">' + fmtTime(rec.timestamp) + '</td>' +
           '<td>' +
